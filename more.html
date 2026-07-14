@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Qavona SMS — The Complete Digital Infrastructure for Modern Schools</title>
+<meta name="description" content="Qavona SMS is launching soon: CBT exams, instant results, secure portals and full school operations in one platform. Join the waitlist for early access + launch pricing." />
+
+<!--
+  ============================================================================
+  QAVONA SMS — PRE-LAUNCH LANDING PAGE
+  ============================================================================
+  HOW TO CUSTOMIZE
+  ----------------------------------------------------------------------------
+  1) LAUNCH DATE
+     Search for "LAUNCH_DATE" (in the <script> near the bottom). Change the
+     ISO date string to whatever date/time you want the countdown to target.
+     Example: const LAUNCH_DATE = new Date("2026-08-12T00:00:00");
+
+  2) LOGO / IMAGES
+     The logo is referenced as "qavona-logo.png" — it sits alongside this
+     index.html file. Replace that file (keep the same name) or update the
+     `src="qavona-logo.png"` attributes (there are two: navbar + footer).
+
+  3) BRAND COLORS
+     All brand colors are defined once as CSS variables in :root at the top
+     of the <style> block below (--qv-navy, --qv-orange, --qv-gold, etc).
+     Change them there and they will cascade through the whole page.
+
+  4) FORM ENDPOINT / MAKING THE FORMS ACTUALLY WORK
+     Both waitlist forms POST to a Formspree endpoint. Search for
+     "FORMSPREE_ENDPOINT" (defined once as a JS constant) to change it.
+     Two things Formspree requires that are NOT a code problem, just a
+     one-time setup step on formspree.io:
+       a) The very first submission to a new Formspree form ID is sent to
+          your Formspree dashboard as a "confirm this form" email — until
+          you click confirm there, later submissions won't be forwarded
+          to your inbox even though the page shows a success message.
+       b) On the free plan, Formspree caps monthly submissions. If you
+          expect real traffic, confirm the endpoint is on the right plan.
+     Everything else (validation, headers, honeypot spam field, error
+     display) is already wired up below — no further code changes needed.
+  ============================================================================
+-->
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+<style>
+  :root{
+    /* ---- Brand tokens (edit here) ---- */
+    --qv-navy-950:#080D18;
+    --qv-navy-900:#0B1220;
+    --qv-navy-800:#111A2E;
+    --qv-navy-700:#1A2540;
+    --qv-slate:#8896B3;
+    --qv-paper:#F7F6F2;
+    --qv-paper-dim:#EEEBE2;
+    --qv-orange:#F97316;
+    --qv-orange-2:#FB923C;
+    --qv-gold:#FBBF24;
+    --qv-line:rgba(247,246,242,0.10);
+    --qv-line-dark:rgba(11,18,32,0.09);
+
+    --font-display:'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-body:'Inter', ui-sans-serif, system-ui, sans-serif;
+    --font-mono:'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  *{ scroll-behavior:smooth; }
+  body{
+    font-family:var(--font-body);
+    background:var(--qv-paper);
+    color:var(--qv-navy-900);
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,h4,.font-display{ font-family:var(--font-display); letter-spacing:-0.02em; }
+  .font-mono{ font-family:var(--font-mono); }
+
+  ::selection{ background:var(--qv-orange); color:white; }
+
+  a:focus-visible, button:focus-visible, input:focus-visible{
+    outline:2px solid var(--qv-orange);
+    outline-offset:3px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important; }
+  }
+
+  /* ---------------- Blueprint grid texture ---------------- */
+  .blueprint{
+    background-image:
+      linear-gradient(var(--qv-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--qv-line) 1px, transparent 1px);
+    background-size: 44px 44px;
+  }
+  .blueprint-light{
+    background-image:
+      linear-gradient(var(--qv-line-dark) 1px, transparent 1px),
+      linear-gradient(90deg, var(--qv-line-dark) 1px, transparent 1px);
+    background-size: 44px 44px;
+  }
+
+  .radial-glow{
+    background: radial-gradient(60% 60% at 50% 0%, rgba(249,115,22,0.18) 0%, rgba(249,115,22,0) 70%);
+  }
+
+  .glass{
+    background: linear-gradient(155deg, rgba(255,255,255,0.09), rgba(255,255,255,0.02));
+    border:1px solid rgba(255,255,255,0.14);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    box-shadow: 0 20px 60px -20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08);
+  }
+
+  .btn-primary{
+    background: linear-gradient(135deg, var(--qv-orange), var(--qv-gold));
+    color:#0B1220;
+    font-weight:700;
+    box-shadow: 0 10px 30px -8px rgba(249,115,22,0.55);
+    transition: transform .25s ease, box-shadow .25s ease, filter .25s ease;
+  }
+  .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 16px 36px -8px rgba(249,115,22,0.7); filter:brightness(1.03); }
+  .btn-primary:active{ transform:translateY(0px) scale(.98); }
+  .btn-primary:disabled{ opacity:.7; cursor:not-allowed; transform:none; }
+
+  .btn-ghost{
+    border:1px solid var(--qv-line);
+    color:var(--qv-paper);
+    transition: background .2s ease, border-color .2s ease;
+  }
+  .btn-ghost:hover{ background:rgba(255,255,255,0.06); border-color:rgba(255,255,255,0.3); }
+
+  .badge-eyebrow{
+    font-family:var(--font-mono);
+    letter-spacing:0.14em;
+    font-size:11px;
+    font-weight:600;
+  }
+
+  .digit-box{
+    font-family:var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .bento-card{
+    transition: transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s ease, border-color .35s ease;
+  }
+  .bento-card:hover{
+    transform: translateY(-6px);
+    box-shadow: 0 30px 60px -25px rgba(11,18,32,0.25);
+    border-color: rgba(249,115,22,0.35);
+  }
+
+  .marquee-track{
+    display:flex;
+    width:max-content;
+    animation: marquee 28s linear infinite;
+  }
+  @keyframes marquee{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
+
+  .faq-panel{
+    max-height:0;
+    overflow:hidden;
+    transition: max-height .4s ease;
+  }
+  .faq-item.open .faq-panel{ max-height:400px; }
+  .faq-item.open .faq-chevron{ transform: rotate(45deg); }
+  .faq-chevron{ transition: transform .3s ease; }
+
+  .mobile-menu{ max-height:0; overflow:hidden; transition:max-height .4s ease; }
+  .mobile-menu.open{ max-height:400px; }
+
+  .tick{ transition: color .3s ease; }
+
+  input::placeholder{ color:rgba(11,18,32,0.4); }
+
+  ::-webkit-scrollbar{ width:10px; }
+  ::-webkit-scrollbar-track{ background:var(--qv-paper); }
+  ::-webkit-scrollbar-thumb{ background:var(--qv-navy-700); border-radius:8px; }
+
+  .grain{
+    position:absolute; inset:0; pointer-events:none; opacity:.05; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ---- Signature detailing (kept subject-grounded even on the dark theme) ---- */
+
+  /* Module index badge — replaces a plain icon-in-box chip with an exam-slip index tab */
+  .mod-badge{
+    width:52px; height:52px;
+    border:1.5px dashed var(--qv-line-dark);
+    transform:rotate(-3deg);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:3px;
+    margin-bottom:1.5rem;
+    background:var(--qv-paper-dim);
+  }
+  .mod-badge .mod-index{ font-family:var(--font-mono); font-size:9px; letter-spacing:0.06em; color:var(--qv-slate); }
+  .mod-badge-dark{ border-color:rgba(255,255,255,0.22); background:rgba(255,255,255,0.05); }
+  .mod-badge-dark .mod-index{ color:rgba(255,255,255,0.45); }
+
+  /* Registration marks — printer crop-mark corners, nodding to exam-paper production */
+  .reg-marks{ position:relative; }
+  .reg-marks::before, .reg-marks::after{ content:''; position:absolute; width:13px; height:13px; opacity:.45; pointer-events:none; }
+  .reg-marks::before{ top:12px; left:12px; border-top:1.5px solid var(--qv-orange); border-left:1.5px solid var(--qv-orange); }
+  .reg-marks::after{ bottom:12px; right:12px; border-bottom:1.5px solid var(--qv-orange); border-right:1.5px solid var(--qv-orange); }
+
+  /* Signature initial — a rotated stamp square instead of a plain circle avatar */
+  .stamp-initial{
+    height:2.5rem; width:2.5rem; border-radius:6px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-display); font-weight:700; color:#fff;
+    background:linear-gradient(135deg,var(--qv-navy-800),var(--qv-navy-700));
+    box-shadow:0 4px 10px -4px rgba(11,18,32,0.5);
+  }
+
+  /* Honeypot field — invisible to humans, catches simple spam bots */
+  .hp-field{ position:absolute; left:-9999px; top:-9999px; height:0; width:0; overflow:hidden; }
+</style>
+</head>
+<body class="antialiased">
+
+<!-- ============================================================ NAVBAR ============================================================ -->
+<header id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300" style="background:rgba(8,13,24,0.7); backdrop-filter:blur(14px); border-bottom:1px solid var(--qv-line);">
+  <div class="max-w-7xl mx-auto px-5 sm:px-8">
+    <div class="flex items-center justify-between h-[76px]">
+      <a href="#top" class="flex items-center gap-3">
+        <img src="qavona-logo.png" alt="Qavona SMS logo" class="h-10 w-auto"/>
+        <span class="hidden sm:inline-block h-6 w-px bg-white/15"></span>
+        <span class="hidden sm:inline-block badge-eyebrow text-white/50 uppercase">School OS</span>
+      </a>
+
+      <nav class="hidden md:flex items-center gap-8 text-sm text-white/70 font-medium">
+        <a href="#features" class="hover:text-white transition-colors">Features</a>
+        <a href="#how-it-works" class="hover:text-white transition-colors">How it works</a>
+        <a href="#benefits" class="hover:text-white transition-colors">Impact</a>
+        <a href="#faq" class="hover:text-white transition-colors">FAQ</a>
+      </nav>
+
+      <div class="flex items-center gap-3">
+        <a href="#waitlist" class="hidden sm:inline-flex btn-primary rounded-full px-5 py-2.5 text-sm">
+          Join Waitlist
+        </a>
+        <button id="menuBtn" aria-label="Toggle menu" aria-expanded="false" class="md:hidden text-white/80 text-xl w-10 h-10 flex items-center justify-center rounded-lg border border-white/10">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile menu -->
+    <div id="mobileMenu" class="mobile-menu md:hidden">
+      <div class="flex flex-col gap-1 pb-5 text-white/80 text-sm font-medium">
+        <a href="#features" class="py-2.5 border-t border-white/10">Features</a>
+        <a href="#how-it-works" class="py-2.5 border-t border-white/10">How it works</a>
+        <a href="#benefits" class="py-2.5 border-t border-white/10">Impact</a>
+        <a href="#faq" class="py-2.5 border-t border-white/10">FAQ</a>
+        <a href="#waitlist" class="mt-2 btn-primary rounded-full px-5 py-3 text-center">Join Waitlist</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div id="top"></div>
+
+<!-- ============================================================ HERO ============================================================ -->
+<section class="relative overflow-hidden" style="background:var(--qv-navy-900);">
+  <div class="absolute inset-0 blueprint opacity-60"></div>
+  <div class="absolute inset-0 radial-glow"></div>
+  <div class="grain"></div>
+
+  <div class="relative max-w-7xl mx-auto px-5 sm:px-8 pt-[130px] pb-20 lg:pt-[160px] lg:pb-28">
+
+    <!-- Bold product definition strip -->
+    <div data-reveal class="max-w-3xl mx-auto text-center mb-10">
+      <p class="text-white/70 text-[15px] sm:text-base leading-relaxed">
+        <span class="text-white font-semibold">Qavona SMS is the operating system for schools</span> —
+        one platform to run admissions, attendance, CBT exams, results and finance,
+        without spreadsheets, paper trails, or a dozen disconnected tools.
+      </p>
+    </div>
+
+    <div class="grid lg:grid-cols-2 gap-16 items-center">
+      <!-- Left: copy -->
+      <div>
+        <div data-reveal class="inline-flex items-center gap-2 rounded-full px-4 py-1.5 mb-7" style="background:rgba(249,115,22,0.12); border:1px solid rgba(249,115,22,0.3);">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-orange-400"></span>
+          </span>
+          <span class="badge-eyebrow text-orange-300 uppercase">Launching Soon</span>
+        </div>
+
+        <h1 data-reveal class="text-[2.5rem] sm:text-5xl lg:text-[3.4rem] leading-[1.08] font-extrabold text-white mb-6">
+          The Complete Digital Infrastructure for Modern Schools
+        </h1>
+
+        <p data-reveal class="text-white/65 text-lg leading-relaxed mb-9 max-w-xl">
+          Manage students, automate CBT exams, generate instant results, and run your
+          entire school operations seamlessly. The ultimate educational OS is launching soon.
+        </p>
+
+        <form data-reveal id="heroForm" class="waitlist-form flex flex-col sm:flex-row gap-3 max-w-lg"
+              action="https://formspree.io/f/xkodnqzp" method="POST" novalidate>
+          <div class="flex-1 relative">
+            <i class="fa-solid fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-white/30"></i>
+            <input type="email" required name="email" autocomplete="email" inputmode="email" placeholder="you@yourschool.edu"
+              class="w-full pl-11 pr-4 py-3.5 rounded-xl bg-white/5 border border-white/15 text-white placeholder-white/35 focus:border-orange-400 focus:bg-white/10 outline-none transition-colors" />
+          </div>
+          <!-- Honeypot: real users never see or fill this; bots often do -->
+          <input type="text" name="_gotcha" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <input type="hidden" name="_subject" value="New Qavona SMS Waitlist Signup" />
+          <input type="hidden" name="source" value="Hero form" />
+          <button type="submit" class="btn-primary rounded-xl px-6 py-3.5 whitespace-nowrap flex items-center justify-center gap-2">
+            <span class="btn-label">Join the Waitlist</span> <i class="fa-solid fa-arrow-right text-sm"></i>
+          </button>
+        </form>
+        <p class="form-msg text-sm mt-3 min-h-[20px]" role="status" aria-live="polite"></p>
+
+        <p data-reveal class="text-white/40 text-sm mt-1 flex items-center gap-2">
+          <i class="fa-solid fa-shield-halved text-orange-400/70"></i>
+          Be among the first schools to get early access + exclusive launch pricing.
+        </p>
+      </div>
+
+      <!-- Right: signature visual — live report-card / results panel -->
+      <div data-reveal class="relative">
+        <div class="glass rounded-3xl p-6 sm:p-8 relative">
+          <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-2.5">
+              <div class="h-9 w-9 rounded-lg flex items-center justify-center" style="background:linear-gradient(135deg,var(--qv-orange),var(--qv-gold));">
+                <i class="fa-solid fa-graduation-cap text-sm" style="color:#0B1220;"></i>
+              </div>
+              <div>
+                <p class="text-white text-sm font-semibold font-display">Result Engine — Live</p>
+                <p class="text-white/40 text-xs font-mono">Term 2 · 2026/2027 Session</p>
+              </div>
+            </div>
+            <span class="badge-eyebrow text-emerald-300 bg-emerald-400/10 border border-emerald-400/30 rounded-full px-2.5 py-1">
+              <i class="fa-solid fa-circle text-[6px] mr-1"></i>SYNCED
+            </span>
+          </div>
+
+          <!-- ticking stat row -->
+          <div class="grid grid-cols-3 gap-3 mb-6">
+            <div class="rounded-xl p-3.5" style="background:rgba(255,255,255,0.04); border:1px solid var(--qv-line);">
+              <p class="text-white/40 text-[11px] font-mono uppercase mb-1">Class Avg</p>
+              <p class="tick text-white text-xl font-bold font-mono" data-count="78.4" data-suffix="%">0%</p>
+            </div>
+            <div class="rounded-xl p-3.5" style="background:rgba(255,255,255,0.04); border:1px solid var(--qv-line);">
+              <p class="text-white/40 text-[11px] font-mono uppercase mb-1">Reports Sent</p>
+              <p class="tick text-white text-xl font-bold font-mono" data-count="512" data-suffix="">0</p>
+            </div>
+            <div class="rounded-xl p-3.5" style="background:rgba(255,255,255,0.04); border:1px solid var(--qv-line);">
+              <p class="text-white/40 text-[11px] font-mono uppercase mb-1">CBT Live</p>
+              <p class="tick text-white text-xl font-bold font-mono" data-count="34" data-suffix="">0</p>
+            </div>
+          </div>
+
+          <!-- mock report card rows -->
+          <div class="rounded-xl overflow-hidden border" style="border-color:var(--qv-line);">
+            <div class="grid grid-cols-12 px-4 py-2.5 text-[11px] font-mono uppercase text-white/35" style="background:rgba(255,255,255,0.03);">
+              <span class="col-span-6">Subject</span>
+              <span class="col-span-2 text-center">CA</span>
+              <span class="col-span-2 text-center">Exam</span>
+              <span class="col-span-2 text-right">Grade</span>
+            </div>
+            <div class="divide-y divide-white/5">
+              <div class="grid grid-cols-12 px-4 py-3 text-sm text-white/80 items-center">
+                <span class="col-span-6">Mathematics</span>
+                <span class="col-span-2 text-center font-mono text-white/60">28</span>
+                <span class="col-span-2 text-center font-mono text-white/60">62</span>
+                <span class="col-span-2 text-right font-mono font-semibold text-emerald-300">A</span>
+              </div>
+              <div class="grid grid-cols-12 px-4 py-3 text-sm text-white/80 items-center">
+                <span class="col-span-6">English Language</span>
+                <span class="col-span-2 text-center font-mono text-white/60">24</span>
+                <span class="col-span-2 text-center font-mono text-white/60">58</span>
+                <span class="col-span-2 text-right font-mono font-semibold text-amber-300">B</span>
+              </div>
+              <div class="grid grid-cols-12 px-4 py-3 text-sm text-white/80 items-center">
+                <span class="col-span-6">Basic Science</span>
+                <span class="col-span-2 text-center font-mono text-white/60">27</span>
+                <span class="col-span-2 text-center font-mono text-white/60">65</span>
+                <span class="col-span-2 text-right font-mono font-semibold text-emerald-300">A</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between mt-5 text-xs">
+            <span class="text-white/35 font-mono">Auto-generated · PDF ready</span>
+            <span class="flex items-center gap-1.5 text-orange-300"><i class="fa-solid fa-file-pdf"></i> Broadsheet.pdf</span>
+          </div>
+        </div>
+
+        <!-- wax-seal stamp — signature motif tying the dashboard back to an actual certificate/report -->
+        <svg class="absolute -top-7 -right-6 w-24 h-24 sm:w-28 sm:h-28 hidden sm:block" viewBox="0 0 200 200" style="transform:rotate(9deg); filter:drop-shadow(0 8px 18px rgba(0,0,0,0.45));">
+          <defs>
+            <path id="sealCircle" d="M 100,100 m -78,0 a 78,78 0 1,1 156,0 a 78,78 0 1,1 -156,0" />
+          </defs>
+          <circle cx="100" cy="100" r="94" fill="var(--qv-gold)" opacity="0.10"/>
+          <circle cx="100" cy="100" r="86" fill="none" stroke="var(--qv-gold)" stroke-width="2.5"/>
+          <circle cx="100" cy="100" r="74" fill="none" stroke="var(--qv-gold)" stroke-width="1.2" stroke-dasharray="2 4"/>
+          <text font-family="JetBrains Mono, monospace" font-size="12.5" font-weight="700" letter-spacing="3" fill="var(--qv-gold)">
+            <textPath href="#sealCircle" startOffset="2%">QAVONA · VERIFIED RESULT ·</textPath>
+          </text>
+          <text x="100" y="94" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif" font-size="14" font-weight="700" fill="#fff">EST.</text>
+          <text x="100" y="118" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif" font-size="20" font-weight="800" fill="#fff">2026</text>
+        </svg>
+
+        <!-- floating badge -->
+        <div class="absolute -bottom-6 -left-6 hidden sm:block glass rounded-2xl px-4 py-3" style="animation: float 5s ease-in-out infinite;">
+          <div class="flex items-center gap-2.5">
+            <i class="fa-solid fa-lock text-orange-400"></i>
+            <div>
+              <p class="text-white text-xs font-semibold">Role-scoped access</p>
+              <p class="text-white/40 text-[11px] font-mono">Zero cross-tenant leaks</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  @keyframes float{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-10px);} }
+</style>
+
+<!-- ============================================================ MARQUEE STRIP ============================================================ -->
+<div class="py-5 overflow-hidden" style="background:var(--qv-navy-950); border-top:1px solid var(--qv-line); border-bottom:1px solid var(--qv-line);">
+  <div class="marquee-track text-white/35 text-sm font-mono uppercase tracking-widest">
+    <div class="flex items-center gap-10 pr-10">
+      <span>CBT Engine</span><span class="text-orange-400/50">•</span>
+      <span>Instant Report Cards</span><span class="text-orange-400/50">•</span>
+      <span>Admissions Workflow</span><span class="text-orange-400/50">•</span>
+      <span>Fee &amp; Billing</span><span class="text-orange-400/50">•</span>
+      <span>Staff &amp; Payroll</span><span class="text-orange-400/50">•</span>
+      <span>Parent Portal</span><span class="text-orange-400/50">•</span>
+      <span>Multi-Currency</span><span class="text-orange-400/50">•</span>
+    </div>
+    <div class="flex items-center gap-10 pr-10" aria-hidden="true">
+      <span>CBT Engine</span><span class="text-orange-400/50">•</span>
+      <span>Instant Report Cards</span><span class="text-orange-400/50">•</span>
+      <span>Admissions Workflow</span><span class="text-orange-400/50">•</span>
+      <span>Fee &amp; Billing</span><span class="text-orange-400/50">•</span>
+      <span>Staff &amp; Payroll</span><span class="text-orange-400/50">•</span>
+      <span>Parent Portal</span><span class="text-orange-400/50">•</span>
+      <span>Multi-Currency</span><span class="text-orange-400/50">•</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ COUNTDOWN ============================================================ -->
+<section class="relative py-20" style="background:var(--qv-navy-900);">
+  <div class="absolute inset-0 blueprint opacity-40"></div>
+  <div class="relative max-w-4xl mx-auto px-5 text-center">
+    <p data-reveal class="badge-eyebrow text-orange-400 uppercase mb-3">Countdown to launch</p>
+    <h2 data-reveal class="font-display text-2xl sm:text-3xl text-white font-bold mb-10">Doors open in</h2>
+
+    <div data-reveal class="grid grid-cols-4 gap-3 sm:gap-6 max-w-2xl mx-auto">
+      <div class="glass rounded-2xl py-6 sm:py-8">
+        <p id="cd-days" class="digit-box text-3xl sm:text-5xl font-bold text-white">00</p>
+        <p class="badge-eyebrow text-white/40 uppercase mt-2">Days</p>
+      </div>
+      <div class="glass rounded-2xl py-6 sm:py-8">
+        <p id="cd-hours" class="digit-box text-3xl sm:text-5xl font-bold text-white">00</p>
+        <p class="badge-eyebrow text-white/40 uppercase mt-2">Hours</p>
+      </div>
+      <div class="glass rounded-2xl py-6 sm:py-8">
+        <p id="cd-mins" class="digit-box text-3xl sm:text-5xl font-bold text-white">00</p>
+        <p class="badge-eyebrow text-white/40 uppercase mt-2">Minutes</p>
+      </div>
+      <div class="glass rounded-2xl py-6 sm:py-8">
+        <p id="cd-secs" class="digit-box text-3xl sm:text-5xl font-bold text-orange-400">00</p>
+        <p class="badge-eyebrow text-white/40 uppercase mt-2">Seconds</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ PROBLEM / SOLUTION ============================================================ -->
+<section class="relative py-24" style="background:var(--qv-paper);">
+  <div class="max-w-7xl mx-auto px-5 sm:px-8">
+    <div class="grid lg:grid-cols-2 gap-14 items-start">
+      <div data-reveal>
+        <p class="badge-eyebrow uppercase text-orange-500 mb-3">The Problem</p>
+        <h2 class="font-display text-3xl sm:text-4xl font-extrabold mb-6 leading-tight">
+          Running a school still means fighting your own paperwork.
+        </h2>
+        <ul class="space-y-4 text-slate-600">
+          <li class="flex items-start gap-3">
+            <i class="fa-solid fa-xmark text-red-500 mt-1"></i>
+            <span>Results computed by hand across scattered spreadsheets, prone to error and delay.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <i class="fa-solid fa-xmark text-red-500 mt-1"></i>
+            <span>Fee balances, attendance, and admissions tracked in separate, disconnected tools.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <i class="fa-solid fa-xmark text-red-500 mt-1"></i>
+            <span>Parents left guessing — no timely, professional communication on their child's progress.</span>
+          </li>
+        </ul>
+      </div>
+
+      <div data-reveal class="rounded-3xl p-9" style="background:var(--qv-navy-900);">
+        <p class="badge-eyebrow uppercase text-orange-400 mb-3">The Qavona Way</p>
+        <h3 class="font-display text-2xl sm:text-3xl font-extrabold text-white mb-6 leading-tight">
+          One secure hub. Every operation, automated.
+        </h3>
+        <ul class="space-y-4 text-white/70">
+          <li class="flex items-start gap-3">
+            <i class="fa-solid fa-check text-orange-400 mt-1"></i>
+            <span>Grades auto-computed with class averages, positions, and remarks — in seconds, not days.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <i class="fa-solid fa-check text-orange-400 mt-1"></i>
+            <span>Admissions, attendance, fees, and staff records live in one connected system.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <i class="fa-solid fa-check text-orange-400 mt-1"></i>
+            <span>Polished, branded report cards and instant updates delivered straight to parents.</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ FEATURES (Bento) ============================================================ -->
+<section id="features" class="relative py-24" style="background:var(--qv-paper-dim);">
+  <div class="max-w-7xl mx-auto px-5 sm:px-8">
+    <div data-reveal class="max-w-2xl mb-14">
+      <p class="badge-eyebrow uppercase text-orange-500 mb-3">Core Modules</p>
+      <h2 class="font-display text-3xl sm:text-4xl font-extrabold mb-4">Everything your school needs to run, in one place.</h2>
+      <p class="text-slate-600 text-lg">A tightly integrated suite — not a bundle of bolted-together tools.</p>
+    </div>
+
+    <div class="grid md:grid-cols-6 gap-5">
+      <!-- CBT - large -->
+      <div data-reveal class="bento-card reg-marks md:col-span-4 rounded-3xl p-8 flex flex-col justify-between min-h-[280px]" style="background:var(--qv-navy-900); border:1px solid transparent;">
+        <div>
+          <div class="mod-badge mod-badge-dark">
+            <i class="fa-solid fa-laptop-code" style="color:var(--qv-orange-2);"></i>
+            <span class="mod-index">MOD·01</span>
+          </div>
+          <h3 class="font-display text-2xl font-bold text-white mb-3">Computer-Based Testing</h3>
+          <p class="text-white/60 max-w-md">A full CBT engine for timed, auto-graded assessments — from class quizzes to standardized exams, sat securely on-platform.</p>
+        </div>
+        <div class="flex gap-2 mt-6 flex-wrap">
+          <span class="badge-eyebrow text-white/50 border border-white/15 rounded-full px-3 py-1.5">Auto-grading</span>
+          <span class="badge-eyebrow text-white/50 border border-white/15 rounded-full px-3 py-1.5">Timed sessions</span>
+          <span class="badge-eyebrow text-white/50 border border-white/15 rounded-full px-3 py-1.5">Question banks</span>
+        </div>
+      </div>
+
+      <!-- Instant results - medium -->
+      <div data-reveal class="bento-card reg-marks md:col-span-2 rounded-3xl p-8 min-h-[280px] flex flex-col justify-between" style="background:white; border:1px solid var(--qv-line-dark);">
+        <div>
+          <div class="mod-badge">
+            <i class="fa-solid fa-file-invoice" style="color:var(--qv-orange);"></i>
+            <span class="mod-index">MOD·02</span>
+          </div>
+          <h3 class="font-display text-xl font-bold mb-3">Instant Results &amp; Report Cards</h3>
+          <p class="text-slate-600 text-sm">Branded, print-ready report cards generated the moment scores are entered.</p>
+        </div>
+      </div>
+
+      <!-- Portals -->
+      <div data-reveal class="bento-card reg-marks md:col-span-2 rounded-3xl p-8 min-h-[260px]" style="background:white; border:1px solid var(--qv-line-dark);">
+        <div class="mod-badge">
+          <i class="fa-solid fa-users-gear" style="color:var(--qv-orange);"></i>
+          <span class="mod-index">MOD·03</span>
+        </div>
+        <h3 class="font-display text-xl font-bold mb-3">Secure Portals</h3>
+        <p class="text-slate-600 text-sm">Dedicated, role-scoped access for Admins, Principals, Teachers, Students and Parents.</p>
+      </div>
+
+      <!-- Attendance / timetable / fees -->
+      <div data-reveal class="bento-card reg-marks md:col-span-2 rounded-3xl p-8 min-h-[260px]" style="background:white; border:1px solid var(--qv-line-dark);">
+        <div class="mod-badge">
+          <i class="fa-solid fa-calendar-check" style="color:var(--qv-orange);"></i>
+          <span class="mod-index">MOD·04</span>
+        </div>
+        <h3 class="font-display text-xl font-bold mb-3">Attendance, Timetable &amp; Fees</h3>
+        <p class="text-slate-600 text-sm">Daily attendance, class schedules, and fee tracking — all feeding straight into report cards.</p>
+      </div>
+
+      <!-- Communication -->
+      <div data-reveal class="bento-card reg-marks md:col-span-2 rounded-3xl p-8 min-h-[260px]" style="background:white; border:1px solid var(--qv-line-dark);">
+        <div class="mod-badge">
+          <i class="fa-solid fa-comments" style="color:var(--qv-orange);"></i>
+          <span class="mod-index">MOD·05</span>
+        </div>
+        <h3 class="font-display text-xl font-bold mb-3">Communication &amp; Notifications</h3>
+        <p class="text-slate-600 text-sm">Bulk email and SMS to guardians — announcements, results, and reminders, sent in one click.</p>
+      </div>
+
+      <!-- Analytics - wide -->
+      <div data-reveal class="bento-card reg-marks md:col-span-6 rounded-3xl p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6" style="background:var(--qv-navy-900);">
+        <div class="flex items-start gap-5">
+          <div class="mod-badge mod-badge-dark shrink-0 mb-0">
+            <i class="fa-solid fa-chart-line" style="color:var(--qv-orange-2);"></i>
+            <span class="mod-index">MOD·06</span>
+          </div>
+          <div>
+            <h3 class="font-display text-xl font-bold text-white mb-2">Advanced Analytics &amp; Reports</h3>
+            <p class="text-white/60 max-w-lg text-sm">Performance trends, class averages, and school-wide KPIs — surfaced automatically, no manual tallying.</p>
+          </div>
+        </div>
+        <a href="#waitlist" class="btn-ghost rounded-full px-5 py-2.5 text-sm whitespace-nowrap">See it at launch</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ BENEFITS / IMPACT ============================================================ -->
+<section id="benefits" class="relative py-24" style="background:var(--qv-paper);">
+  <div class="max-w-7xl mx-auto px-5 sm:px-8">
+    <div data-reveal class="max-w-2xl mb-14">
+      <p class="badge-eyebrow uppercase text-orange-500 mb-3">Built for Impact</p>
+      <h2 class="font-display text-3xl sm:text-4xl font-extrabold mb-4">Weeks of admin work, down to minutes.</h2>
+      <p class="text-slate-600 text-lg">Automation that gives time back to the people actually teaching.</p>
+    </div>
+
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div data-reveal class="rounded-2xl p-7 border" style="border-color:var(--qv-line-dark); background:white;">
+        <p class="font-mono text-4xl font-bold text-orange-500 mb-2 stat-count" data-count="95" data-suffix="%">0%</p>
+        <p class="text-slate-600 text-sm">Less time spent computing and compiling results manually</p>
+      </div>
+      <div data-reveal class="rounded-2xl p-7 border" style="border-color:var(--qv-line-dark); background:white;">
+        <p class="font-mono text-4xl font-bold text-orange-500 mb-2 stat-count" data-count="1" data-suffix="-Click">0</p>
+        <p class="text-slate-600 text-sm">Batch report card generation &amp; dispatch to guardians</p>
+      </div>
+      <div data-reveal class="rounded-2xl p-7 border" style="border-color:var(--qv-line-dark); background:white;">
+        <p class="font-mono text-4xl font-bold text-orange-500 mb-2 stat-count" data-count="100" data-suffix="%">0%</p>
+        <p class="text-slate-600 text-sm">WYSIWYG parity between on-screen preview and printed PDF</p>
+      </div>
+      <div data-reveal class="rounded-2xl p-7 border" style="border-color:var(--qv-line-dark); background:white;">
+        <p class="font-mono text-4xl font-bold text-orange-500 mb-2">Multi</p>
+        <p class="text-slate-600 text-sm">Currency support, built for schools operating across borders</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ HOW IT WORKS ============================================================ -->
+<section id="how-it-works" class="relative py-24" style="background:var(--qv-navy-900);">
+  <div class="absolute inset-0 blueprint opacity-30"></div>
+  <div class="relative max-w-7xl mx-auto px-5 sm:px-8">
+    <div data-reveal class="max-w-2xl mb-16">
+      <p class="badge-eyebrow uppercase text-orange-400 mb-3">How it works</p>
+      <h2 class="font-display text-3xl sm:text-4xl font-extrabold text-white mb-4">From setup to your first report card.</h2>
+      <p class="text-white/60 text-lg">A guided rollout — your data structured correctly, from day one.</p>
+    </div>
+
+    <div class="grid md:grid-cols-4 gap-8">
+      <div data-reveal class="relative">
+        <p class="font-mono text-orange-400/60 text-sm mb-3">Step 01</p>
+        <h3 class="font-display text-lg font-bold text-white mb-2">Set up your school</h3>
+        <p class="text-white/55 text-sm">Add classes, subjects, terms, and grading criteria — configured to match how your school actually runs.</p>
+      </div>
+      <div data-reveal class="relative">
+        <p class="font-mono text-orange-400/60 text-sm mb-3">Step 02</p>
+        <h3 class="font-display text-lg font-bold text-white mb-2">Onboard your people</h3>
+        <p class="text-white/55 text-sm">Invite staff and students into role-scoped portals, each seeing exactly what they need to.</p>
+      </div>
+      <div data-reveal class="relative">
+        <p class="font-mono text-orange-400/60 text-sm mb-3">Step 03</p>
+        <h3 class="font-display text-lg font-bold text-white mb-2">Run the term</h3>
+        <p class="text-white/55 text-sm">Track attendance, collect fees, and administer CBT exams — all inside one connected system.</p>
+      </div>
+      <div data-reveal class="relative">
+        <p class="font-mono text-orange-400/60 text-sm mb-3">Step 04</p>
+        <h3 class="font-display text-lg font-bold text-white mb-2">Publish results</h3>
+        <p class="text-white/55 text-sm">Batch-generate branded report cards and dispatch them to guardians in a single click.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ TESTIMONIALS ============================================================ -->
+<section class="relative py-24" style="background:var(--qv-paper-dim);">
+  <div class="max-w-7xl mx-auto px-5 sm:px-8">
+    <div data-reveal class="max-w-2xl mb-14 mx-auto text-center">
+      <p class="badge-eyebrow uppercase text-orange-500 mb-3">Early Feedback</p>
+      <h2 class="font-display text-3xl sm:text-4xl font-extrabold">What early partner schools are saying.</h2>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6">
+      <div data-reveal class="rounded-2xl p-7 bg-white border" style="border-color:var(--qv-line-dark);">
+        <div class="flex gap-1 text-orange-400 mb-4">
+          <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+        </div>
+        <p class="text-slate-700 mb-6">"What we saw in the preview finally looked like software built for how our school actually runs — not a generic template."</p>
+        <div class="flex items-center gap-3">
+          <div class="stamp-initial">A</div>
+          <div>
+            <p class="font-semibold text-sm">School Administrator</p>
+            <p class="text-slate-500 text-xs">Catawba Ridge High School (Fort Mill), South Carolina </p>
+          </div>
+        </div>
+      </div>
+
+      <div data-reveal class="rounded-2xl p-7 bg-white border" style="border-color:var(--qv-line-dark);">
+        <div class="flex gap-1 text-orange-400 mb-4">
+          <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+        </div>
+        <p class="text-slate-700 mb-6">"Computing results and remarks used to take our staff days. Seeing it happen automatically was the moment we signed up for early access."</p>
+        <div class="flex items-center gap-3">
+          <div class="stamp-initial" style="transform:rotate(3deg);">V</div>
+          <div>
+            <p class="font-semibold text-sm">Vice Principal, Academics</p>
+            <p class="text-slate-500 text-xs">Solardad Schools, Okene</p>
+          </div>
+        </div>
+      </div>
+
+      <div data-reveal class="rounded-2xl p-7 bg-white border" style="border-color:var(--qv-line-dark);">
+        <div class="flex gap-1 text-orange-400 mb-4">
+          <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+        </div>
+        <p class="text-slate-700 mb-6">"The parent communication piece is what stood out — instant, professional updates instead of chasing paper report cards."</p>
+        <div class="flex items-center gap-3">
+          <div class="stamp-initial" style="transform:rotate(-4deg); font-size:0.75rem;">IT</div>
+          <div>
+            <p class="font-semibold text-sm">IT Coordinator</p>
+            <p class="text-slate-500 text-xs">Higher Ground Group of Schools</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ FINAL CTA ============================================================ -->
+<section id="waitlist" class="relative py-24 overflow-hidden" style="background:var(--qv-navy-950);">
+  <div class="absolute inset-0 blueprint opacity-40"></div>
+  <div class="absolute inset-0 radial-glow"></div>
+  <div class="relative max-w-3xl mx-auto px-5 text-center">
+    <p data-reveal class="badge-eyebrow uppercase text-orange-400 mb-3">Reserve your spot</p>
+    <h2 data-reveal class="font-display text-3xl sm:text-4xl font-extrabold text-white mb-5">
+      Be first in line when Qavona SMS opens its doors.
+    </h2>
+    <p data-reveal class="text-white/60 text-lg mb-10">
+      Early waitlist schools get priority onboarding and exclusive launch pricing.
+    </p>
+
+    <form data-reveal id="finalForm" class="waitlist-form flex flex-col sm:flex-row gap-3 max-w-lg mx-auto"
+          action="https://formspree.io/f/xkodnqzp" method="POST" novalidate>
+      <div class="flex-1 relative">
+        <i class="fa-solid fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-white/30"></i>
+        <input type="email" required name="email" autocomplete="email" inputmode="email" placeholder="you@yourschool.edu"
+          class="w-full pl-11 pr-4 py-3.5 rounded-xl bg-white/5 border border-white/15 text-white placeholder-white/35 focus:border-orange-400 focus:bg-white/10 outline-none transition-colors" />
+      </div>
+      <input type="text" name="_gotcha" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true" />
+      <input type="hidden" name="_subject" value="New Qavona SMS Waitlist Signup" />
+      <input type="hidden" name="source" value="Final CTA form" />
+      <button type="submit" class="btn-primary rounded-xl px-6 py-3.5 whitespace-nowrap flex items-center justify-center gap-2">
+        <span class="btn-label">Join the Waitlist</span> <i class="fa-solid fa-arrow-right text-sm"></i>
+      </button>
+    </form>
+    <p class="form-msg text-sm mt-3 min-h-[20px]" role="status" aria-live="polite"></p>
+  </div>
+</section>
+
+<!-- ============================================================ FAQ ============================================================ -->
+<section id="faq" class="relative py-24" style="background:var(--qv-paper);">
+  <div class="max-w-3xl mx-auto px-5 sm:px-8">
+    <div data-reveal class="mb-12 text-center">
+      <p class="badge-eyebrow uppercase text-orange-500 mb-3">Questions</p>
+      <h2 class="font-display text-3xl sm:text-4xl font-extrabold">Frequently asked questions.</h2>
+    </div>
+
+    <div class="space-y-3">
+      <div data-reveal class="faq-item rounded-2xl border overflow-hidden" style="border-color:var(--qv-line-dark);">
+        <button class="faq-toggle w-full flex items-center justify-between text-left px-6 py-5 font-semibold">
+          When exactly does Qavona SMS launch?
+          <i class="fa-solid fa-plus faq-chevron text-orange-500"></i>
+        </button>
+        <div class="faq-panel px-6"><p class="text-slate-600 pb-5">We're in final testing now. Join the waitlist and you'll be notified the moment early access opens — see the live countdown above for our current target.</p></div>
+      </div>
+
+      <div data-reveal class="faq-item rounded-2xl border overflow-hidden" style="border-color:var(--qv-line-dark);">
+        <button class="faq-toggle w-full flex items-center justify-between text-left px-6 py-5 font-semibold">
+          Which schools is Qavona built for?
+          <i class="fa-solid fa-plus faq-chevron text-orange-500"></i>
+        </button>
+        <div class="faq-panel px-6"><p class="text-slate-600 pb-5">Qavona is built for primary, secondary and international schools of any size — with native multi-currency support for schools operating across different regions.</p></div>
+      </div>
+
+      <div data-reveal class="faq-item rounded-2xl border overflow-hidden" style="border-color:var(--qv-line-dark);">
+        <button class="faq-toggle w-full flex items-center justify-between text-left px-6 py-5 font-semibold">
+          Can I customize our report cards?
+          <i class="fa-solid fa-plus faq-chevron text-orange-500"></i>
+        </button>
+        <div class="faq-panel px-6"><p class="text-slate-600 pb-5">Yes. The template builder lets you toggle grading criteria, rearrange layout elements, and apply your school's branding — with full parity between the on-screen preview and the final PDF.</p></div>
+      </div>
+
+      <div data-reveal class="faq-item rounded-2xl border overflow-hidden" style="border-color:var(--qv-line-dark);">
+        <button class="faq-toggle w-full flex items-center justify-between text-left px-6 py-5 font-semibold">
+          How is our data kept secure?
+          <i class="fa-solid fa-plus faq-chevron text-orange-500"></i>
+        </button>
+        <div class="faq-panel px-6"><p class="text-slate-600 pb-5">Qavona uses strict role-based access control and row-level data scoping, so every request is locked to the right school and role — preventing cross-tenant data exposure.</p></div>
+      </div>
+
+      <div data-reveal class="faq-item rounded-2xl border overflow-hidden" style="border-color:var(--qv-line-dark);">
+        <button class="faq-toggle w-full flex items-center justify-between text-left px-6 py-5 font-semibold">
+          What does early access pricing include?
+          <i class="fa-solid fa-plus faq-chevron text-orange-500"></i>
+        </button>
+        <div class="faq-panel px-6"><p class="text-slate-600 pb-5">Waitlist schools get priority onboarding support and locked-in launch pricing before public rates take effect.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ FOOTER ============================================================ -->
+<footer class="relative pt-16 pb-8" style="background:var(--qv-navy-950); border-top:1px solid var(--qv-line);">
+  <div class="max-w-7xl mx-auto px-5 sm:px-8">
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-14">
+      <div>
+        <img src="qavona-logo.png" alt="Qavona SMS logo" class="h-10 w-auto mb-4"/>
+        <p class="text-white/45 text-sm leading-relaxed max-w-xs">The complete digital infrastructure for modern schools — launching soon.</p>
+      </div>
+      <div>
+        <p class="text-white font-semibold text-sm mb-4">Product</p>
+        <ul class="space-y-2.5 text-white/45 text-sm">
+          <li><a href="#features" class="hover:text-orange-400 transition-colors">Features</a></li>
+          <li><a href="#how-it-works" class="hover:text-orange-400 transition-colors">How it works</a></li>
+          <li><a href="#benefits" class="hover:text-orange-400 transition-colors">Impact</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="text-white font-semibold text-sm mb-4">Company</p>
+        <ul class="space-y-2.5 text-white/45 text-sm">
+          <li><a href="#faq" class="hover:text-orange-400 transition-colors">FAQ</a></li>
+          <li><a href="#waitlist" class="hover:text-orange-400 transition-colors">Join Waitlist</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="text-white font-semibold text-sm mb-4">Stay updated</p>
+        <p class="text-white/45 text-sm mb-4">Get launch news straight to your inbox.</p>
+        <a href="#waitlist" class="btn-primary rounded-full px-5 py-2.5 text-sm inline-block">Join Waitlist</a>
+      </div>
+    </div>
+    <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4" style="border-top:1px solid var(--qv-line);">
+      <p class="text-white/35 text-xs">© 2026 Qavona. All rights reserved.</p>
+      <div class="flex items-center gap-4 text-white/35 text-sm">
+        <a href="#" class="hover:text-orange-400 transition-colors"><i class="fa-brands fa-x-twitter"></i></a>
+        <a href="#" class="hover:text-orange-400 transition-colors"><i class="fa-brands fa-linkedin"></i></a>
+        <a href="#" class="hover:text-orange-400 transition-colors"><i class="fa-brands fa-instagram"></i></a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ============================================================ SCRIPTS ============================================================ -->
+<script>
+  // ---------------------------------------------------------------------
+  // CONFIG — edit these two values to customize behavior
+  // ---------------------------------------------------------------------
+  const LAUNCH_DATE = new Date("2026-08-12T00:00:00"); // <-- change launch date/time here
+  const FORMSPREE_ENDPOINT = "https://formspree.io/f/xkodnqzp"; // <-- change form endpoint here
+
+  // ---------------------------------------------------------------------
+  // Mobile menu
+  // ---------------------------------------------------------------------
+  const menuBtn = document.getElementById('menuBtn');
+  const mobileMenu = document.getElementById('mobileMenu');
+  menuBtn.addEventListener('click', () => {
+    const isOpen = mobileMenu.classList.toggle('open');
+    menuBtn.setAttribute('aria-expanded', isOpen);
+    menuBtn.innerHTML = isOpen ? '<i class="fa-solid fa-xmark"></i>' : '<i class="fa-solid fa-bars"></i>';
+  });
+  document.querySelectorAll('#mobileMenu a').forEach(a => a.addEventListener('click', () => {
+    mobileMenu.classList.remove('open');
+    menuBtn.innerHTML = '<i class="fa-solid fa-bars"></i>';
+  }));
+
+  // ---------------------------------------------------------------------
+  // Countdown timer
+  // ---------------------------------------------------------------------
+  function updateCountdown(){
+    const now = new Date();
+    let diff = LAUNCH_DATE - now;
+    if (diff < 0) diff = 0;
+
+    const days = Math.floor(diff / (1000*60*60*24));
+    const hours = Math.floor((diff / (1000*60*60)) % 24);
+    const mins = Math.floor((diff / (1000*60)) % 60);
+    const secs = Math.floor((diff / 1000) % 60);
+
+    document.getElementById('cd-days').textContent = String(days).padStart(2,'0');
+    document.getElementById('cd-hours').textContent = String(hours).padStart(2,'0');
+    document.getElementById('cd-mins').textContent = String(mins).padStart(2,'0');
+    document.getElementById('cd-secs').textContent = String(secs).padStart(2,'0');
+  }
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+
+  // ---------------------------------------------------------------------
+  // FAQ accordion
+  // ---------------------------------------------------------------------
+  document.querySelectorAll('.faq-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = btn.closest('.faq-item');
+      const wasOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+      if (!wasOpen) item.classList.add('open');
+    });
+  });
+
+  // ---------------------------------------------------------------------
+  // Waitlist forms -> Formspree (AJAX with a real <form action> fallback)
+  // + confetti success state + honeypot spam check + real error messages
+  // ---------------------------------------------------------------------
+  function initForm(form){
+    const msgEl = form.parentElement.querySelector('.form-msg');
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const btnLabel = submitBtn.querySelector('.btn-label');
+    const originalLabel = btnLabel ? btnLabel.textContent : submitBtn.textContent;
+
+    function setMessage(text, tone){
+      // tone: 'error' | 'success'
+      msgEl.textContent = text;
+      msgEl.className = "form-msg text-sm mt-3 min-h-[20px] " +
+        (tone === 'error' ? 'text-red-400' : tone === 'success' ? 'text-emerald-400 font-medium' : '');
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Honeypot: if this hidden field got filled in, silently drop the submission
+      const honeypot = form.querySelector('input[name="_gotcha"]');
+      if (honeypot && honeypot.value.trim() !== ""){
+        setMessage("You're on the list! We'll email you at launch.", 'success');
+        form.reset();
+        return;
+      }
+
+      const emailInput = form.querySelector('input[type="email"]');
+      const email = emailInput.value.trim();
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      if (!emailRegex.test(email)){
+        setMessage("Please enter a valid email address.", 'error');
+        emailInput.focus();
+        return;
+      }
+
+      submitBtn.disabled = true;
+      if (btnLabel) btnLabel.textContent = "Submitting...";
+      const spinnerIcon = document.createElement('i');
+      spinnerIcon.className = "fa-solid fa-spinner fa-spin";
+      submitBtn.prepend(spinnerIcon);
+      setMessage("", null);
+
+      try {
+        const formData = new FormData(form);
+        const res = await fetch(form.getAttribute('action') || FORMSPREE_ENDPOINT, {
+          method: "POST",
+          headers: { "Accept": "application/json" },
+          body: formData
+        });
+
+        let data = null;
+        try { data = await res.json(); } catch(_) { /* non-JSON response is fine on success redirects */ }
+
+        if (res.ok){
+          setMessage("You're on the list! We'll email you at launch.", 'success');
+          form.reset();
+          fireConfetti();
+        } else {
+          const serverMsg = (data && Array.isArray(data.errors) && data.errors.length)
+            ? data.errors.map(er => er.message).join(", ")
+            : "Something went wrong. Please try again in a moment.";
+          setMessage(serverMsg, 'error');
+        }
+      } catch (err){
+        setMessage("We couldn't reach the server. Check your connection and try again.", 'error');
+      } finally {
+        submitBtn.disabled = false;
+        spinnerIcon.remove();
+        if (btnLabel) btnLabel.textContent = originalLabel;
+      }
+    });
+  }
+  document.querySelectorAll('.waitlist-form').forEach(initForm);
+
+  // Lightweight vanilla confetti (no external lib)
+  function fireConfetti(){
+    const colors = ['#F97316', '#FBBF24', '#ffffff', '#1A2540'];
+    const count = 120;
+    const container = document.createElement('div');
+    container.style.cssText = 'position:fixed; inset:0; pointer-events:none; z-index:9999; overflow:hidden;';
+    document.body.appendChild(container);
+
+    for (let i=0; i<count; i++){
+      const piece = document.createElement('div');
+      const size = 6 + Math.random()*6;
+      const startX = 50 + (Math.random()*40 - 20); // vw, centered-ish
+      piece.style.cssText = `
+        position:absolute; top:-20px; left:${startX}vw;
+        width:${size}px; height:${size*0.4}px;
+        background:${colors[Math.floor(Math.random()*colors.length)]};
+        opacity:${0.8 + Math.random()*0.2};
+        border-radius:2px;
+      `;
+      container.appendChild(piece);
+
+      const duration = 2200 + Math.random()*1800;
+      const xDrift = (Math.random()*200 - 100);
+      const rotation = Math.random()*720 - 360;
+
+      piece.animate([
+        { transform: `translate(0,0) rotate(0deg)`, opacity: 1 },
+        { transform: `translate(${xDrift}px, 100vh) rotate(${rotation}deg)`, opacity: 0.9 }
+      ], { duration, easing: 'cubic-bezier(.25,.46,.45,.94)', fill: 'forwards' });
+    }
+    setTimeout(() => container.remove(), 4200);
+  }
+
+  // ---------------------------------------------------------------------
+  // Navbar shadow on scroll
+  // ---------------------------------------------------------------------
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.style.boxShadow = window.scrollY > 20 ? '0 10px 30px -15px rgba(0,0,0,0.5)' : 'none';
+  });
+
+  // ---------------------------------------------------------------------
+  // GSAP scroll-triggered reveals
+  // ---------------------------------------------------------------------
+  gsap.registerPlugin(ScrollTrigger);
+
+  gsap.utils.toArray('[data-reveal]').forEach((el) => {
+    gsap.fromTo(el,
+      { opacity: 0, y: 28 },
+      {
+        opacity: 1, y: 0, duration: 0.8, ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 88%', once: true }
+      }
+    );
+  });
+
+  gsap.utils.toArray('.bento-card').forEach((el) => {
+    gsap.fromTo(el, { opacity: 0, scale: 0.96 }, {
+      opacity: 1, scale: 1, duration: 0.7, ease: 'power2.out',
+      scrollTrigger: { trigger: el, start: 'top 90%', once: true }
+    });
+  });
+
+  // Ticking counters (hero + stats)
+  function animateCount(el){
+    const target = parseFloat(el.getAttribute('data-count'));
+    const suffix = el.getAttribute('data-suffix') || '';
+    const isDecimal = String(target).includes('.');
+    const obj = { val: 0 };
+    gsap.to(obj, {
+      val: target,
+      duration: 1.6,
+      ease: 'power1.out',
+      onUpdate: () => {
+        el.textContent = (isDecimal ? obj.val.toFixed(1) : Math.round(obj.val)) + suffix;
+      }
+    });
+  }
+  gsap.utils.toArray('.tick, .stat-count').forEach(el => {
+    ScrollTrigger.create({
+      trigger: el,
+      start: 'top 90%',
+      once: true,
+      onEnter: () => animateCount(el)
+    });
+  });
+</script>
+
+</body>
+</html>

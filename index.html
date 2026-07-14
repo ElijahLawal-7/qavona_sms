@@ -1,745 +1,621 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Qavona SMS — The Complete Digital Infrastructure for Modern Schools</title>
-<meta name="description" content="Qavona SMS is launching soon: CBT exams, instant results, secure portals and full school operations in one platform. Join the waitlist for early access + launch pricing." />
-
 <!--
-  ============================================================================
+  =====================================================================
   QAVONA SMS — PRE-LAUNCH LANDING PAGE
-  ============================================================================
-  HOW TO CUSTOMIZE
-  ----------------------------------------------------------------------------
-  1) LAUNCH DATE
-     Search for "LAUNCH_DATE" (in the <script> near the bottom). Change the
-     ISO date string to whatever date/time you want the countdown to target.
-     Example: const LAUNCH_DATE = new Date("2026-08-12T00:00:00");
+  =====================================================================
+  QUICK CUSTOMIZATION GUIDE
+  ---------------------------------------------------------------------
+  1. LAUNCH DATE — search "LAUNCH_DATE" in the <script> near the
+     bottom. Currently set to July 24, 2026, 6:00 PM GMT (UTC), built
+     with Date.UTC() so it doesn't drift with the visitor's timezone.
 
-  2) LOGO / IMAGES
-     The logo is referenced as "qavona-logo.png" — it sits alongside this
-     index.html file. Replace that file (keep the same name) or update the
-     `src="qavona-logo.png"` attributes (there are two: navbar + footer).
+  2. COLORS — every brand color is a CSS variable under `:root` in the
+     <style> block. Change them there and the whole page updates.
+        --ink        deep navy background (dark sections)
+        --ink-2      elevated navy (cards on dark bg)
+        --gold       primary orange/gold accent
+        --gold-2     lighter gold (gradient end)
+        --paper      near-white background (light sections)
 
-  3) BRAND COLORS
-     All brand colors are defined once as CSS variables in :root at the top
-     of the <style> block below (--qv-navy, --qv-orange, --qv-gold, etc).
-     Change them there and they will cascade through the whole page.
+  3. LOGO — embedded as a base64 data URI (search "QAVONA_LOGO_MARK"
+     near the bottom <script>) so the file stays single-file with no
+     external image request. Swap that string, or point the
+     <img data-logo-mark> tags at a hosted file instead.
 
-  4) FORM ENDPOINT / MAKING THE FORMS ACTUALLY WORK
-     Both waitlist forms POST to a Formspree endpoint. Search for
-     "FORMSPREE_ENDPOINT" (defined once as a JS constant) to change it.
-     Two things Formspree requires that are NOT a code problem, just a
-     one-time setup step on formspree.io:
-       a) The very first submission to a new Formspree form ID is sent to
-          your Formspree dashboard as a "confirm this form" email — until
-          you click confirm there, later submissions won't be forwarded
-          to your inbox even though the page shows a success message.
-       b) On the free plan, Formspree caps monthly submissions. If you
-          expect real traffic, confirm the endpoint is on the right plan.
-     Everything else (validation, headers, honeypot spam field, error
-     display) is already wired up below — no further code changes needed.
-  ============================================================================
+  4. FORM ENDPOINT — both waitlist forms post to a live Formspree
+     endpoint (search "formspree.io/f/xkodnqzp"). Replace with your
+     own endpoint if this ever changes.
+
+  5. COPY — organized by numbered section comments (SECTION 01, 02...).
+
+  Tech: Tailwind CSS (CDN, JIT), GSAP + ScrollTrigger (CDN), Font
+  Awesome (CDN), Google Fonts (Inter + Space Grotesk + Caveat accent).
+  No build step — open the file directly or host it as a static page.
+  =====================================================================
 -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Qavona SMS — The Complete Digital Infrastructure for Modern Schools</title>
+<meta name="description" content="Qavona SMS is the operating system schools run on: admissions, CBT exams, results and report cards, fees, attendance, and staff — one login for admins, teachers, parents and students. Join the waitlist.">
+<meta name="keywords" content="Qavona SMS, school management system, CBT software, report card generator, school fee management, student portal, education SaaS">
 
-<!-- Fonts -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Qavona SMS — The Complete Digital Infrastructure for Modern Schools">
+<meta property="og:description" content="Admissions to results, fees to attendance — one login for your whole school. Join the waitlist for early access and founding-school pricing.">
+<meta property="og:image" content="https://qavona.com/sms-og-image.jpg">
+<meta property="og:url" content="https://qavona.com/sms">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Qavona SMS — The Complete Digital Infrastructure for Modern Schools">
+<meta name="twitter:description" content="Manage students, automate CBT exams, generate instant results, and run your school from one login. Launching soon.">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
 
-<!-- Tailwind -->
 <script src="https://cdn.tailwindcss.com"></script>
-
-<!-- Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-<!-- GSAP -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 
 <style>
   :root{
-    /* ---- Brand tokens (edit here) ---- */
-    --qv-navy-950:#080D18;
-    --qv-navy-900:#0B1220;
-    --qv-navy-800:#111A2E;
-    --qv-navy-700:#1A2540;
-    --qv-slate:#8896B3;
-    --qv-paper:#F7F6F2;
-    --qv-paper-dim:#EEEBE2;
-    --qv-orange:#F97316;
-    --qv-orange-2:#FB923C;
-    --qv-gold:#FBBF24;
-    --qv-line:rgba(247,246,242,0.10);
-    --qv-line-dark:rgba(11,18,32,0.09);
-
-    --font-display:'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
-    --font-body:'Inter', ui-sans-serif, system-ui, sans-serif;
-    --font-mono:'JetBrains Mono', ui-monospace, monospace;
+    --ink:#0B1220;
+    --ink-2:#131F38;
+    --ink-3:#1B2A4A;
+    --gold:#F97316;
+    --gold-2:#FFB648;
+    --paper:#F7F8FA;
+    --paper-2:#FFFFFF;
+    --slate:#5B6478;
+    --line:rgba(255,255,255,0.08);
+    --line-dark:rgba(15,23,42,0.08);
   }
-
-  *{ scroll-behavior:smooth; }
-  body{
-    font-family:var(--font-body);
-    background:var(--qv-paper);
-    color:var(--qv-navy-900);
-    -webkit-font-smoothing:antialiased;
-  }
-  h1,h2,h3,h4,.font-display{ font-family:var(--font-display); letter-spacing:-0.02em; }
-  .font-mono{ font-family:var(--font-mono); }
-
-  ::selection{ background:var(--qv-orange); color:white; }
-
-  a:focus-visible, button:focus-visible, input:focus-visible{
-    outline:2px solid var(--qv-orange);
-    outline-offset:3px;
-  }
-
-  @media (prefers-reduced-motion: reduce){
-    *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important; }
-  }
-
-  /* ---------------- Blueprint grid texture ---------------- */
-  .blueprint{
+  *{scroll-behavior:smooth;}
+  body{ font-family:'Inter',sans-serif; background:var(--paper); color:var(--ink); -webkit-font-smoothing:antialiased; }
+  .font-display{font-family:'Space Grotesk',sans-serif;}
+  .font-mono-num{font-family:'Space Grotesk',sans-serif; font-variant-numeric:tabular-nums;}
+  .font-marker{font-family:'Caveat',cursive;}
+  ::selection{background:var(--gold); color:white;}
+  .text-gold{color:var(--gold);}
+  .bg-ink{background:var(--ink);}
+  .bg-ink-2{background:var(--ink-2);}
+  .bg-ink-3{background:var(--ink-3);}
+  .border-line{border-color:var(--line);}
+  .gold-gradient{background:linear-gradient(135deg, var(--gold) 0%, var(--gold-2) 100%);}
+  .gold-text-gradient{ background:linear-gradient(135deg, var(--gold) 0%, var(--gold-2) 100%); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .ink-noise{
     background-image:
-      linear-gradient(var(--qv-line) 1px, transparent 1px),
-      linear-gradient(90deg, var(--qv-line) 1px, transparent 1px);
-    background-size: 44px 44px;
+      radial-gradient(circle at 15% 20%, rgba(249,115,22,0.10), transparent 40%),
+      radial-gradient(circle at 85% 0%, rgba(255,182,72,0.08), transparent 45%),
+      radial-gradient(circle at 50% 100%, rgba(59,90,161,0.15), transparent 50%);
   }
-  .blueprint-light{
+  .grid-lines{
     background-image:
-      linear-gradient(var(--qv-line-dark) 1px, transparent 1px),
-      linear-gradient(90deg, var(--qv-line-dark) 1px, transparent 1px);
-    background-size: 44px 44px;
+      linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px);
+    background-size:44px 44px;
   }
 
-  .radial-glow{
-    background: radial-gradient(60% 60% at 50% 0%, rgba(249,115,22,0.18) 0%, rgba(249,115,22,0) 70%);
+  .btn-gold{ background:linear-gradient(135deg, var(--gold), var(--gold-2)); box-shadow:0 8px 24px -6px rgba(249,115,22,0.5); transition:transform .25s ease, box-shadow .25s ease, filter .25s ease; }
+  .btn-gold:hover{ transform:translateY(-2px); box-shadow:0 14px 30px -6px rgba(249,115,22,0.6); filter:brightness(1.04); }
+  .btn-gold:active{ transform:translateY(0); }
+  .btn-ghost{ border:1.5px solid rgba(255,255,255,0.18); transition:all .25s ease; backdrop-filter:blur(6px); }
+  .btn-ghost:hover{ border-color:rgba(255,255,255,0.4); background:rgba(255,255,255,0.06); }
+
+  #navbar{ transition:background .35s ease, box-shadow .35s ease; }
+  #navbar.scrolled{ background:rgba(11,18,32,0.85); backdrop-filter:blur(14px); box-shadow:0 1px 0 rgba(255,255,255,0.06); }
+
+  .orbit-ring{ animation:spin-slow 34s linear infinite; transform-origin:50% 50%; }
+  .orbit-ring-rev{ animation:spin-slow-rev 46s linear infinite; transform-origin:50% 50%; }
+  @keyframes spin-slow{ from{ transform:rotate(0deg);} to{ transform:rotate(360deg);} }
+  @keyframes spin-slow-rev{ from{ transform:rotate(360deg);} to{ transform:rotate(0deg);} }
+  @media (prefers-reduced-motion: reduce){ .orbit-ring,.orbit-ring-rev{ animation:none; } }
+
+  .float-y{ animation:floaty 6s ease-in-out infinite; }
+  .float-y-delay{ animation:floaty 6s ease-in-out infinite; animation-delay:1.2s; }
+  @keyframes floaty{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-14px);} }
+
+  .bento-card{ background:var(--paper-2); border:1px solid var(--line-dark); transition:transform .3s ease, box-shadow .3s ease, border-color .3s ease; }
+  .bento-card:hover{ transform:translateY(-4px); box-shadow:0 24px 48px -20px rgba(15,23,42,0.18); border-color:rgba(249,115,22,0.35); }
+  .glass-card{ background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); backdrop-filter:blur(10px); }
+
+  .faq-item.open .faq-chevron{ transform:rotate(45deg); }
+  .faq-item .faq-answer{ max-height:0; overflow:hidden; transition:max-height .4s ease; }
+  .faq-item.open .faq-answer{ max-height:420px; }
+
+  .count-box{ background:linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)); border:1px solid rgba(255,255,255,0.10); }
+
+  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; border-radius:4px; }
+  input, select, textarea{ font-family:'Inter',sans-serif; }
+  #confetti-canvas{ position:fixed; inset:0; pointer-events:none; z-index:200; }
+  .scroll-hide::-webkit-scrollbar{ display:none; }
+  .scroll-hide{ -ms-overflow-style:none; scrollbar-width:none; }
+
+  /* Ghost numeral / letter markers — replaces the generic icon-in-a-box pattern */
+  .ghost-num{ font-family:'Space Grotesk',sans-serif; font-weight:700; -webkit-text-stroke:1.5px rgba(11,18,32,0.16); color:transparent; font-size:2.75rem; line-height:1; }
+  .ghost-num-dark{ -webkit-text-stroke:1.5px rgba(255,255,255,0.22); }
+  .ghost-letter{ font-family:'Space Grotesk',sans-serif; font-weight:700; -webkit-text-stroke:1.5px rgba(249,115,22,0.55); color:transparent; font-size:3.5rem; line-height:1; }
+
+  .hex-avatar{ clip-path:polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%); }
+
+  .stamp-badge{ border:1.5px dashed rgba(249,115,22,0.55); }
+
+  /* Ribbon banner for the "Launching Soon" corner tag */
+  .corner-ribbon{
+    position:absolute; top:18px; right:-38px; width:160px; text-align:center;
+    transform:rotate(38deg); background:linear-gradient(135deg, var(--gold), var(--gold-2));
+    color:#fff; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:11px;
+    letter-spacing:0.08em; padding:5px 0; box-shadow:0 4px 10px rgba(0,0,0,0.25); z-index:10;
   }
 
-  .glass{
-    background: linear-gradient(155deg, rgba(255,255,255,0.09), rgba(255,255,255,0.02));
-    border:1px solid rgba(255,255,255,0.14);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    box-shadow: 0 20px 60px -20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08);
-  }
-
-  .btn-primary{
-    background: linear-gradient(135deg, var(--qv-orange), var(--qv-gold));
-    color:#0B1220;
-    font-weight:700;
-    box-shadow: 0 10px 30px -8px rgba(249,115,22,0.55);
-    transition: transform .25s ease, box-shadow .25s ease, filter .25s ease;
-  }
-  .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 16px 36px -8px rgba(249,115,22,0.7); filter:brightness(1.03); }
-  .btn-primary:active{ transform:translateY(0px) scale(.98); }
-  .btn-primary:disabled{ opacity:.7; cursor:not-allowed; transform:none; }
-
-  .btn-ghost{
-    border:1px solid var(--qv-line);
-    color:var(--qv-paper);
-    transition: background .2s ease, border-color .2s ease;
-  }
-  .btn-ghost:hover{ background:rgba(255,255,255,0.06); border-color:rgba(255,255,255,0.3); }
-
-  .badge-eyebrow{
-    font-family:var(--font-mono);
-    letter-spacing:0.14em;
-    font-size:11px;
-    font-weight:600;
-  }
-
-  .digit-box{
-    font-family:var(--font-mono);
-    font-variant-numeric: tabular-nums;
-  }
-
-  .bento-card{
-    transition: transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s ease, border-color .35s ease;
-  }
-  .bento-card:hover{
-    transform: translateY(-6px);
-    box-shadow: 0 30px 60px -25px rgba(11,18,32,0.25);
-    border-color: rgba(249,115,22,0.35);
-  }
-
-  .marquee-track{
-    display:flex;
-    width:max-content;
-    animation: marquee 28s linear infinite;
-  }
-  @keyframes marquee{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
-
-  .faq-panel{
-    max-height:0;
-    overflow:hidden;
-    transition: max-height .4s ease;
-  }
-  .faq-item.open .faq-panel{ max-height:400px; }
-  .faq-item.open .faq-chevron{ transform: rotate(45deg); }
-  .faq-chevron{ transition: transform .3s ease; }
-
-  .mobile-menu{ max-height:0; overflow:hidden; transition:max-height .4s ease; }
-  .mobile-menu.open{ max-height:400px; }
-
-  .tick{ transition: color .3s ease; }
-
-  input::placeholder{ color:rgba(11,18,32,0.4); }
-
-  ::-webkit-scrollbar{ width:10px; }
-  ::-webkit-scrollbar-track{ background:var(--qv-paper); }
-  ::-webkit-scrollbar-thumb{ background:var(--qv-navy-700); border-radius:8px; }
-
-  .grain{
-    position:absolute; inset:0; pointer-events:none; opacity:.05; mix-blend-mode:overlay;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
-
-  /* ---- Signature detailing (kept subject-grounded even on the dark theme) ---- */
-
-  /* Module index badge — replaces a plain icon-in-box chip with an exam-slip index tab */
-  .mod-badge{
-    width:52px; height:52px;
-    border:1.5px dashed var(--qv-line-dark);
-    transform:rotate(-3deg);
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    gap:3px;
-    margin-bottom:1.5rem;
-    background:var(--qv-paper-dim);
-  }
-  .mod-badge .mod-index{ font-family:var(--font-mono); font-size:9px; letter-spacing:0.06em; color:var(--qv-slate); }
-  .mod-badge-dark{ border-color:rgba(255,255,255,0.22); background:rgba(255,255,255,0.05); }
-  .mod-badge-dark .mod-index{ color:rgba(255,255,255,0.45); }
-
-  /* Registration marks — printer crop-mark corners, nodding to exam-paper production */
-  .reg-marks{ position:relative; }
-  .reg-marks::before, .reg-marks::after{ content:''; position:absolute; width:13px; height:13px; opacity:.45; pointer-events:none; }
-  .reg-marks::before{ top:12px; left:12px; border-top:1.5px solid var(--qv-orange); border-left:1.5px solid var(--qv-orange); }
-  .reg-marks::after{ bottom:12px; right:12px; border-bottom:1.5px solid var(--qv-orange); border-right:1.5px solid var(--qv-orange); }
-
-  /* Signature initial — a rotated stamp square instead of a plain circle avatar */
-  .stamp-initial{
-    height:2.5rem; width:2.5rem; border-radius:6px;
-    display:flex; align-items:center; justify-content:center;
-    font-family:var(--font-display); font-weight:700; color:#fff;
-    background:linear-gradient(135deg,var(--qv-navy-800),var(--qv-navy-700));
-    box-shadow:0 4px 10px -4px rgba(11,18,32,0.5);
-  }
-
-  /* Honeypot field — invisible to humans, catches simple spam bots */
-  .hp-field{ position:absolute; left:-9999px; top:-9999px; height:0; width:0; overflow:hidden; }
+  .marquee-track{ animation:marquee 26s linear infinite; }
+  .marquee-track:hover{ animation-play-state:paused; }
+  @keyframes marquee{ from{ transform:translateX(0);} to{ transform:translateX(-50%);} }
 </style>
 </head>
-<body class="antialiased">
+<body class="antialiased overflow-x-hidden">
 
-<!-- ============================================================ NAVBAR ============================================================ -->
-<header id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300" style="background:rgba(8,13,24,0.7); backdrop-filter:blur(14px); border-bottom:1px solid var(--qv-line);">
-  <div class="max-w-7xl mx-auto px-5 sm:px-8">
-    <div class="flex items-center justify-between h-[76px]">
-      <a href="#top" class="flex items-center gap-3">
-        <img src="qavona-logo.png" alt="Qavona SMS logo" class="h-10 w-auto"/>
-        <span class="hidden sm:inline-block h-6 w-px bg-white/15"></span>
-        <span class="hidden sm:inline-block badge-eyebrow text-white/50 uppercase">School OS</span>
+<canvas id="confetti-canvas"></canvas>
+
+<!-- =========================================================
+     NAVIGATION
+     ========================================================= -->
+<header id="navbar" class="fixed top-0 left-0 right-0 z-50">
+  <nav class="max-w-7xl mx-auto flex items-center justify-between px-6 lg:px-10 py-4">
+    <a href="#top" class="flex items-center gap-2.5">
+      <img src="" data-logo-mark alt="Qavona logo" width="32" height="32" class="shrink-0 h-8 w-auto">
+      <span class="font-display font-bold text-xl tracking-tight text-white">QAVONA <span class="text-gold">SMS</span></span>
+    </a>
+
+    <div class="hidden lg:flex items-center gap-9 text-sm font-medium text-slate-300">
+      <a href="#features" class="hover:text-white transition-colors">Features</a>
+      <a href="#why" class="hover:text-white transition-colors">Why Qavona</a>
+      <a href="#how-it-works" class="hover:text-white transition-colors">How It Works</a>
+      <a href="#faq" class="hover:text-white transition-colors">FAQ</a>
+      <a href="more.html" class="hover:text-white transition-colors">Learn More</a>
+    </div>
+
+    <div class="hidden lg:flex items-center gap-3">
+      <a href="#waitlist" class="btn-gold text-white text-sm font-semibold px-5 py-2.5 rounded-full">
+        Join Waitlist <i class="fa-solid fa-arrow-right ml-1 text-xs"></i>
       </a>
-
-      <nav class="hidden md:flex items-center gap-8 text-sm text-white/70 font-medium">
-        <a href="#features" class="hover:text-white transition-colors">Features</a>
-        <a href="#how-it-works" class="hover:text-white transition-colors">How it works</a>
-        <a href="#benefits" class="hover:text-white transition-colors">Impact</a>
-        <a href="#faq" class="hover:text-white transition-colors">FAQ</a>
-      </nav>
-
-      <div class="flex items-center gap-3">
-        <a href="#waitlist" class="hidden sm:inline-flex btn-primary rounded-full px-5 py-2.5 text-sm">
-          Join Waitlist
-        </a>
-        <button id="menuBtn" aria-label="Toggle menu" aria-expanded="false" class="md:hidden text-white/80 text-xl w-10 h-10 flex items-center justify-center rounded-lg border border-white/10">
-          <i class="fa-solid fa-bars"></i>
-        </button>
-      </div>
     </div>
 
-    <!-- Mobile menu -->
-    <div id="mobileMenu" class="mobile-menu md:hidden">
-      <div class="flex flex-col gap-1 pb-5 text-white/80 text-sm font-medium">
-        <a href="#features" class="py-2.5 border-t border-white/10">Features</a>
-        <a href="#how-it-works" class="py-2.5 border-t border-white/10">How it works</a>
-        <a href="#benefits" class="py-2.5 border-t border-white/10">Impact</a>
-        <a href="#faq" class="py-2.5 border-t border-white/10">FAQ</a>
-        <a href="#waitlist" class="mt-2 btn-primary rounded-full px-5 py-3 text-center">Join Waitlist</a>
-      </div>
-    </div>
+    <button id="menu-toggle" class="lg:hidden text-white text-xl w-10 h-10 flex items-center justify-center" aria-label="Toggle menu" aria-expanded="false">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+  </nav>
+
+  <div id="mobile-menu" class="lg:hidden hidden bg-ink border-t border-line px-6 py-6 flex flex-col gap-5 text-slate-200 font-medium">
+    <a href="#features" class="mobile-link">Features</a>
+    <a href="#why" class="mobile-link">Why Qavona</a>
+    <a href="#how-it-works" class="mobile-link">How It Works</a>
+    <a href="#faq" class="mobile-link">FAQ</a>
+    <a href="#waitlist" class="btn-gold text-white text-sm font-semibold px-5 py-3 rounded-full text-center mt-2">Join Waitlist</a>
   </div>
 </header>
 
-<div id="top"></div>
+<!-- =========================================================
+     SECTION 01 — HERO
+     ========================================================= -->
+<section id="top" class="relative bg-ink ink-noise grid-lines overflow-hidden pt-36 pb-24 lg:pt-44 lg:pb-32">
+  <div class="absolute inset-0 pointer-events-none" style="background:radial-gradient(ellipse at 50% 0%, rgba(11,18,32,0) 0%, var(--ink) 78%);"></div>
 
-<!-- ============================================================ HERO ============================================================ -->
-<section class="relative overflow-hidden" style="background:var(--qv-navy-900);">
-  <div class="absolute inset-0 blueprint opacity-60"></div>
-  <div class="absolute inset-0 radial-glow"></div>
-  <div class="grain"></div>
+  <div class="relative max-w-7xl mx-auto px-6 lg:px-10 grid lg:grid-cols-2 gap-16 items-center">
+    <div>
+      <div class="stamp-badge inline-flex items-center gap-2.5 px-3.5 py-1 -rotate-1 text-[11px] font-bold tracking-[0.15em] text-gold uppercase mb-8">
+        <i class="fa-solid fa-graduation-cap"></i> Not live yet — waitlist is open
+      </div>
 
-  <div class="relative max-w-7xl mx-auto px-5 sm:px-8 pt-[130px] pb-20 lg:pt-[160px] lg:pb-28">
+      <h1 class="font-display font-bold text-white text-[2.5rem] leading-[1.1] sm:text-5xl lg:text-[3.4rem] tracking-tight">
+        The Complete Digital Infrastructure for <span class="gold-text-gradient">Modern Schools</span>
+      </h1>
+      <svg viewBox="0 0 460 24" class="w-[240px] sm:w-[300px] -mt-1 mb-2" aria-hidden="true">
+        <path d="M4 14 C 90 4, 180 20, 270 8 S 420 4, 456 12" fill="none" stroke="url(#underlineGold)" stroke-width="5" stroke-linecap="round" opacity="0.85"/>
+        <defs><linearGradient id="underlineGold" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#F97316"/><stop offset="1" stop-color="#FFB648"/></linearGradient></defs>
+      </svg>
 
-    <!-- Bold product definition strip -->
-    <div data-reveal class="max-w-3xl mx-auto text-center mb-10">
-      <p class="text-white/70 text-[15px] sm:text-base leading-relaxed">
-        <span class="text-white font-semibold">Qavona SMS is the operating system for schools</span> —
-        one platform to run admissions, attendance, CBT exams, results and finance,
-        without spreadsheets, paper trails, or a dozen disconnected tools.
+      <p class="mt-6 text-slate-300 text-lg leading-relaxed max-w-xl">
+        Manage students, run CBT exams, generate results in minutes, and administer your whole school from one login. The educational OS is opening its doors soon.
       </p>
+
+      <form id="hero-mini-form" class="mt-9 flex flex-col sm:flex-row gap-2 max-w-md" novalidate>
+        <label for="hero-email" class="sr-only">School or work email</label>
+        <input id="hero-email" type="email" required placeholder="you@yourschool.edu"
+          class="flex-1 px-5 py-3.5 rounded-full bg-white/5 border border-white/15 text-white placeholder-slate-500 text-sm focus:bg-white/10 outline-none">
+        <button type="submit" class="px-6 py-3.5 rounded-full bg-white text-ink font-semibold text-sm hover:bg-gold hover:text-white transition-colors whitespace-nowrap">
+          Join the Waitlist
+        </button>
+      </form>
+      <p class="mt-3 text-xs text-slate-500"><i class="fa-solid fa-star text-gold mr-1"></i>Be among the first schools onboarded — with early-access pricing locked in for good.</p>
+
+      <div class="mt-10 flex items-center gap-6 text-slate-400 text-sm">
+        <div class="flex -space-x-2.5">
+          <div class="w-8 h-8 rounded-full border-2 border-ink bg-gradient-to-br from-orange-400 to-amber-300"></div>
+          <div class="w-8 h-8 rounded-full border-2 border-ink bg-gradient-to-br from-slate-400 to-slate-600"></div>
+          <div class="w-8 h-8 rounded-full border-2 border-ink bg-gradient-to-br from-amber-500 to-orange-600"></div>
+          <div class="w-8 h-8 rounded-full border-2 border-ink bg-ink-3 flex items-center justify-center text-[10px] font-bold text-white">+</div>
+        </div>
+        <span><span class="text-white font-semibold" id="waitlist-count">312</span> schools already on the waitlist</span>
+      </div>
     </div>
 
-    <div class="grid lg:grid-cols-2 gap-16 items-center">
-      <!-- Left: copy -->
-      <div>
-        <div data-reveal class="inline-flex items-center gap-2 rounded-full px-4 py-1.5 mb-7" style="background:rgba(249,115,22,0.12); border:1px solid rgba(249,115,22,0.3);">
-          <span class="relative flex h-2 w-2">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-2 w-2 bg-orange-400"></span>
-          </span>
-          <span class="badge-eyebrow text-orange-300 uppercase">Launching Soon</span>
+    <!-- Hero visual: report card / results dashboard mockup -->
+    <div class="relative h-[440px] lg:h-[520px] flex items-center justify-center">
+      <svg viewBox="0 0 500 500" class="absolute w-[480px] h-[480px] lg:w-[560px] lg:h-[560px] opacity-70">
+        <circle cx="250" cy="250" r="210" fill="none" stroke="rgba(255,182,72,0.35)" stroke-width="1.5" stroke-dasharray="2 8" class="orbit-ring"/>
+        <circle cx="250" cy="250" r="170" fill="none" stroke="rgba(138,147,168,0.3)" stroke-width="1" class="orbit-ring-rev"/>
+      </svg>
+
+      <div class="relative w-[300px] sm:w-[340px] rounded-2xl glass-card p-5 shadow-2xl float-y overflow-visible">
+        <div class="corner-ribbon">LAUNCHING SOON</div>
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-xs font-semibold text-slate-300 tracking-wide uppercase">Term Report — Y10</span>
+          <i class="fa-solid fa-file-pdf text-gold"></i>
         </div>
-
-        <h1 data-reveal class="text-[2.5rem] sm:text-5xl lg:text-[3.4rem] leading-[1.08] font-extrabold text-white mb-6">
-          The Complete Digital Infrastructure for Modern Schools
-        </h1>
-
-        <p data-reveal class="text-white/65 text-lg leading-relaxed mb-9 max-w-xl">
-          Manage students, automate CBT exams, generate instant results, and run your
-          entire school operations seamlessly. The ultimate educational OS is launching soon.
-        </p>
-
-        <form data-reveal id="heroForm" class="waitlist-form flex flex-col sm:flex-row gap-3 max-w-lg"
-              action="https://formspree.io/f/xkodnqzp" method="POST" novalidate>
-          <div class="flex-1 relative">
-            <i class="fa-solid fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-white/30"></i>
-            <input type="email" required name="email" autocomplete="email" inputmode="email" placeholder="you@yourschool.edu"
-              class="w-full pl-11 pr-4 py-3.5 rounded-xl bg-white/5 border border-white/15 text-white placeholder-white/35 focus:border-orange-400 focus:bg-white/10 outline-none transition-colors" />
-          </div>
-          <!-- Honeypot: real users never see or fill this; bots often do -->
-          <input type="text" name="_gotcha" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true" />
-          <input type="hidden" name="_subject" value="New Qavona SMS Waitlist Signup" />
-          <input type="hidden" name="source" value="Hero form" />
-          <button type="submit" class="btn-primary rounded-xl px-6 py-3.5 whitespace-nowrap flex items-center justify-center gap-2">
-            <span class="btn-label">Join the Waitlist</span> <i class="fa-solid fa-arrow-right text-sm"></i>
-          </button>
-        </form>
-        <p class="form-msg text-sm mt-3 min-h-[20px]" role="status" aria-live="polite"></p>
-
-        <p data-reveal class="text-white/40 text-sm mt-1 flex items-center gap-2">
-          <i class="fa-solid fa-shield-halved text-orange-400/70"></i>
-          Be among the first schools to get early access + exclusive launch pricing.
-        </p>
+        <div class="text-white font-display text-lg font-bold">Adaeze N. Okafor</div>
+        <div class="text-xs text-slate-400 mb-4">Position: 2nd of 34 · Overall: 84.6%</div>
+        <div class="space-y-2 mb-4">
+          <div class="flex items-center justify-between text-xs text-slate-300"><span>Mathematics</span><span class="font-mono-num text-white">91</span></div>
+          <div class="h-1.5 rounded-full bg-white/10 overflow-hidden -mt-1.5 mb-1"><div class="h-full gold-gradient" style="width:91%"></div></div>
+          <div class="flex items-center justify-between text-xs text-slate-300"><span>English Language</span><span class="font-mono-num text-white">78</span></div>
+          <div class="h-1.5 rounded-full bg-white/10 overflow-hidden -mt-1.5 mb-1"><div class="h-full gold-gradient" style="width:78%"></div></div>
+          <div class="flex items-center justify-between text-xs text-slate-300"><span>Basic Science</span><span class="font-mono-num text-white">86</span></div>
+          <div class="h-1.5 rounded-full bg-white/10 overflow-hidden -mt-1.5 mb-1"><div class="h-full gold-gradient" style="width:86%"></div></div>
+        </div>
+        <div class="flex items-center justify-between text-xs text-slate-400 border-t border-white/10 pt-3">
+          <span><i class="fa-solid fa-check-circle text-emerald-400 mr-1"></i>Auto remarks generated</span>
+        </div>
       </div>
 
-      <!-- Right: signature visual — live report-card / results panel -->
-      <div data-reveal class="relative">
-        <div class="glass rounded-3xl p-6 sm:p-8 relative">
-          <div class="flex items-center justify-between mb-6">
-            <div class="flex items-center gap-2.5">
-              <div class="h-9 w-9 rounded-lg flex items-center justify-center" style="background:linear-gradient(135deg,var(--qv-orange),var(--qv-gold));">
-                <i class="fa-solid fa-graduation-cap text-sm" style="color:#0B1220;"></i>
-              </div>
-              <div>
-                <p class="text-white text-sm font-semibold font-display">Result Engine — Live</p>
-                <p class="text-white/40 text-xs font-mono">Term 2 · 2026/2027 Session</p>
-              </div>
-            </div>
-            <span class="badge-eyebrow text-emerald-300 bg-emerald-400/10 border border-emerald-400/30 rounded-full px-2.5 py-1">
-              <i class="fa-solid fa-circle text-[6px] mr-1"></i>SYNCED
-            </span>
-          </div>
-
-          <!-- ticking stat row -->
-          <div class="grid grid-cols-3 gap-3 mb-6">
-            <div class="rounded-xl p-3.5" style="background:rgba(255,255,255,0.04); border:1px solid var(--qv-line);">
-              <p class="text-white/40 text-[11px] font-mono uppercase mb-1">Class Avg</p>
-              <p class="tick text-white text-xl font-bold font-mono" data-count="78.4" data-suffix="%">0%</p>
-            </div>
-            <div class="rounded-xl p-3.5" style="background:rgba(255,255,255,0.04); border:1px solid var(--qv-line);">
-              <p class="text-white/40 text-[11px] font-mono uppercase mb-1">Reports Sent</p>
-              <p class="tick text-white text-xl font-bold font-mono" data-count="512" data-suffix="">0</p>
-            </div>
-            <div class="rounded-xl p-3.5" style="background:rgba(255,255,255,0.04); border:1px solid var(--qv-line);">
-              <p class="text-white/40 text-[11px] font-mono uppercase mb-1">CBT Live</p>
-              <p class="tick text-white text-xl font-bold font-mono" data-count="34" data-suffix="">0</p>
-            </div>
-          </div>
-
-          <!-- mock report card rows -->
-          <div class="rounded-xl overflow-hidden border" style="border-color:var(--qv-line);">
-            <div class="grid grid-cols-12 px-4 py-2.5 text-[11px] font-mono uppercase text-white/35" style="background:rgba(255,255,255,0.03);">
-              <span class="col-span-6">Subject</span>
-              <span class="col-span-2 text-center">CA</span>
-              <span class="col-span-2 text-center">Exam</span>
-              <span class="col-span-2 text-right">Grade</span>
-            </div>
-            <div class="divide-y divide-white/5">
-              <div class="grid grid-cols-12 px-4 py-3 text-sm text-white/80 items-center">
-                <span class="col-span-6">Mathematics</span>
-                <span class="col-span-2 text-center font-mono text-white/60">28</span>
-                <span class="col-span-2 text-center font-mono text-white/60">62</span>
-                <span class="col-span-2 text-right font-mono font-semibold text-emerald-300">A</span>
-              </div>
-              <div class="grid grid-cols-12 px-4 py-3 text-sm text-white/80 items-center">
-                <span class="col-span-6">English Language</span>
-                <span class="col-span-2 text-center font-mono text-white/60">24</span>
-                <span class="col-span-2 text-center font-mono text-white/60">58</span>
-                <span class="col-span-2 text-right font-mono font-semibold text-amber-300">B</span>
-              </div>
-              <div class="grid grid-cols-12 px-4 py-3 text-sm text-white/80 items-center">
-                <span class="col-span-6">Basic Science</span>
-                <span class="col-span-2 text-center font-mono text-white/60">27</span>
-                <span class="col-span-2 text-center font-mono text-white/60">65</span>
-                <span class="col-span-2 text-right font-mono font-semibold text-emerald-300">A</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="flex items-center justify-between mt-5 text-xs">
-            <span class="text-white/35 font-mono">Auto-generated · PDF ready</span>
-            <span class="flex items-center gap-1.5 text-orange-300"><i class="fa-solid fa-file-pdf"></i> Broadsheet.pdf</span>
-          </div>
+      <div class="absolute -top-3 right-1 sm:right-3 w-40 rounded-xl glass-card p-3.5 shadow-xl float-y-delay">
+        <div class="flex items-center gap-2 mb-2"><i class="fa-solid fa-layer-group text-gold"></i><p class="text-white text-xs font-semibold">Template Builder</p></div>
+        <div class="space-y-1.5">
+          <div class="h-2 rounded bg-white/15 w-full"></div>
+          <div class="h-2 rounded bg-white/15 w-4/5"></div>
+          <div class="h-2 rounded gold-gradient w-3/5"></div>
         </div>
+        <p class="text-slate-400 text-[10px] mt-2">Drag. Drop. Done.</p>
+      </div>
 
-        <!-- wax-seal stamp — signature motif tying the dashboard back to an actual certificate/report -->
-        <svg class="absolute -top-7 -right-6 w-24 h-24 sm:w-28 sm:h-28 hidden sm:block" viewBox="0 0 200 200" style="transform:rotate(9deg); filter:drop-shadow(0 8px 18px rgba(0,0,0,0.45));">
-          <defs>
-            <path id="sealCircle" d="M 100,100 m -78,0 a 78,78 0 1,1 156,0 a 78,78 0 1,1 -156,0" />
-          </defs>
-          <circle cx="100" cy="100" r="94" fill="var(--qv-gold)" opacity="0.10"/>
-          <circle cx="100" cy="100" r="86" fill="none" stroke="var(--qv-gold)" stroke-width="2.5"/>
-          <circle cx="100" cy="100" r="74" fill="none" stroke="var(--qv-gold)" stroke-width="1.2" stroke-dasharray="2 4"/>
-          <text font-family="JetBrains Mono, monospace" font-size="12.5" font-weight="700" letter-spacing="3" fill="var(--qv-gold)">
-            <textPath href="#sealCircle" startOffset="2%">QAVONA · VERIFIED RESULT ·</textPath>
-          </text>
-          <text x="100" y="94" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif" font-size="14" font-weight="700" fill="#fff">EST.</text>
-          <text x="100" y="118" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif" font-size="20" font-weight="800" fill="#fff">2026</text>
-        </svg>
+      <div class="absolute -bottom-4 left-0 sm:-left-4 w-36 rounded-xl glass-card p-3.5 shadow-xl float-y">
+        <div class="w-full h-14 rounded-lg bg-ink-3 mb-2 flex items-center justify-center border border-white/10">
+          <i class="fa-solid fa-laptop-code text-gold text-lg"></i>
+        </div>
+        <p class="text-white text-xs font-semibold">CBT: Mid-Term</p>
+        <p class="text-slate-400 text-[11px]">128 students live</p>
+      </div>
+    </div>
+  </div>
+</section>
 
-        <!-- floating badge -->
-        <div class="absolute -bottom-6 -left-6 hidden sm:block glass rounded-2xl px-4 py-3" style="animation: float 5s ease-in-out infinite;">
-          <div class="flex items-center gap-2.5">
-            <i class="fa-solid fa-lock text-orange-400"></i>
-            <div>
-              <p class="text-white text-xs font-semibold">Role-scoped access</p>
-              <p class="text-white/40 text-[11px] font-mono">Zero cross-tenant leaks</p>
-            </div>
-          </div>
+<!-- =========================================================
+     SECTION 02 — BOLD VALUE PROPOSITION
+     ========================================================= -->
+<section class="relative bg-white border-y border-line-dark py-16 lg:py-20 overflow-hidden">
+  <svg viewBox="0 0 500 500" class="absolute -right-24 -top-24 w-80 h-80 opacity-[0.04] pointer-events-none">
+    <polygon points="250,40 425,140 425,360 250,460 75,360 75,140" fill="none" stroke="#0B1220" stroke-width="2"/>
+  </svg>
+  <div class="relative max-w-4xl mx-auto px-6 lg:px-10 text-center reveal-section">
+    <p class="text-gold text-xs font-bold tracking-[0.2em] uppercase mb-5">In one sentence</p>
+    <h2 class="font-display text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight leading-snug">
+      Qavona SMS is the operating system schools run on —
+      <span class="gold-text-gradient">admissions to results, fees to attendance</span>,
+      one login for admins, teachers, parents, and students.
+    </h2>
+  </div>
+</section>
+
+<!-- =========================================================
+     SECTION 03 — LIVE COUNTDOWN
+     ========================================================= -->
+<section class="bg-ink-2 border-b border-line py-16 lg:py-20">
+  <div class="max-w-5xl mx-auto px-6 text-center">
+    <p class="text-gold text-xs font-bold tracking-[0.2em] uppercase mb-3">Doors Open</p>
+    <h2 class="font-display text-white text-2xl sm:text-3xl font-semibold mb-10">The waitlist closes and Qavona SMS goes live in</h2>
+
+    <div id="countdown" class="grid grid-cols-4 gap-3 sm:gap-6 max-w-2xl mx-auto">
+      <div class="count-box rounded-2xl py-5 sm:py-8">
+        <div class="font-mono-num text-3xl sm:text-5xl font-bold text-white" id="cd-days">00</div>
+        <div class="text-[11px] sm:text-xs text-slate-400 uppercase tracking-wider mt-1">Days</div>
+      </div>
+      <div class="count-box rounded-2xl py-5 sm:py-8">
+        <div class="font-mono-num text-3xl sm:text-5xl font-bold text-white" id="cd-hours">00</div>
+        <div class="text-[11px] sm:text-xs text-slate-400 uppercase tracking-wider mt-1">Hours</div>
+      </div>
+      <div class="count-box rounded-2xl py-5 sm:py-8">
+        <div class="font-mono-num text-3xl sm:text-5xl font-bold text-white" id="cd-mins">00</div>
+        <div class="text-[11px] sm:text-xs text-slate-400 uppercase tracking-wider mt-1">Minutes</div>
+      </div>
+      <div class="count-box rounded-2xl py-5 sm:py-8">
+        <div class="font-mono-num text-3xl sm:text-5xl font-bold text-gold" id="cd-secs">00</div>
+        <div class="text-[11px] sm:text-xs text-slate-400 uppercase tracking-wider mt-1">Seconds</div>
+      </div>
+    </div>
+    <p class="text-slate-500 text-sm mt-8">24 July 2026, 6:00 PM GMT. <a href="#waitlist" class="text-gold font-semibold hover:underline">Reserve your school's spot →</a></p>
+  </div>
+</section>
+
+<!-- =========================================================
+     SECTION 04 — PROBLEM → SOLUTION (ledger style)
+     ========================================================= -->
+<section class="py-24 lg:py-32 bg-paper">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="max-w-2xl mb-14 reveal-section">
+      <p class="text-gold text-xs font-bold tracking-[0.2em] uppercase mb-3">Problem → Solution</p>
+      <h2 class="font-display text-3xl sm:text-4xl lg:text-[2.6rem] font-bold tracking-tight leading-tight">Report card week shouldn't take a week.</h2>
+    </div>
+
+    <div class="reveal-section max-w-4xl mx-auto rounded-2xl bg-white border border-line-dark shadow-xl overflow-hidden">
+      <div class="flex items-center justify-between px-6 sm:px-10 py-6 border-b-2 border-dashed border-line-dark">
+        <span class="font-marker text-2xl sm:text-3xl text-slate-400 -rotate-2 inline-block">how it's done today</span>
+        <i class="fa-solid fa-arrow-right-long text-slate-300 hidden sm:block"></i>
+        <span class="font-marker text-2xl sm:text-3xl text-gold rotate-1 inline-block">with Qavona SMS</span>
+      </div>
+      <div class="divide-y divide-line-dark">
+        <div class="grid sm:grid-cols-[1fr_auto_1fr] gap-3 sm:gap-6 px-6 sm:px-10 py-5">
+          <p class="text-slate-400 text-[15px] leading-relaxed"><s class="decoration-red-300 decoration-2">Report cards built by hand</s> in Excel or Word, term after term.</p>
+          <span class="hidden sm:flex items-center text-gold"><i class="fa-solid fa-arrow-right"></i></span>
+          <p class="text-ink text-[15px] font-medium leading-relaxed">A drag-and-drop Template Builder — design once, generate every term as a polished PDF.</p>
+        </div>
+        <div class="grid sm:grid-cols-[1fr_auto_1fr] gap-3 sm:gap-6 px-6 sm:px-10 py-5">
+          <p class="text-slate-400 text-[15px] leading-relaxed">Ranks and remarks <s class="decoration-red-300 decoration-2">calculated (and miscalculated) by hand</s>.</p>
+          <span class="hidden sm:flex items-center text-gold"><i class="fa-solid fa-arrow-right"></i></span>
+          <p class="text-ink text-[15px] font-medium leading-relaxed">Cognitive, Affective & Psychomotor scores auto-computed — positions and remarks generated for you.</p>
+        </div>
+        <div class="grid sm:grid-cols-[1fr_auto_1fr] gap-3 sm:gap-6 px-6 sm:px-10 py-5">
+          <p class="text-slate-400 text-[15px] leading-relaxed">Fee balances <s class="decoration-red-300 decoration-2">tracked on paper</s> or in a spreadsheet nobody fully trusts.</p>
+          <span class="hidden sm:flex items-center text-gold"><i class="fa-solid fa-arrow-right"></i></span>
+          <p class="text-ink text-[15px] font-medium leading-relaxed">Invoicing, partial payments, and outstanding balances tracked automatically, per student.</p>
+        </div>
+        <div class="grid sm:grid-cols-[1fr_auto_1fr] gap-3 sm:gap-6 px-6 sm:px-10 py-5">
+          <p class="text-slate-400 text-[15px] leading-relaxed"><s class="decoration-red-300 decoration-2">One shared login</s> — or no login at all — for staff, parents, and students.</p>
+          <span class="hidden sm:flex items-center text-gold"><i class="fa-solid fa-arrow-right"></i></span>
+          <p class="text-ink text-[15px] font-medium leading-relaxed">Role-based access for Admins, Principals, Teachers, Students & Guardians — everyone sees only what they should.</p>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<style>
-  @keyframes float{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-10px);} }
-</style>
-
-<!-- ============================================================ MARQUEE STRIP ============================================================ -->
-<div class="py-5 overflow-hidden" style="background:var(--qv-navy-950); border-top:1px solid var(--qv-line); border-bottom:1px solid var(--qv-line);">
-  <div class="marquee-track text-white/35 text-sm font-mono uppercase tracking-widest">
-    <div class="flex items-center gap-10 pr-10">
-      <span>CBT Engine</span><span class="text-orange-400/50">•</span>
-      <span>Instant Report Cards</span><span class="text-orange-400/50">•</span>
-      <span>Admissions Workflow</span><span class="text-orange-400/50">•</span>
-      <span>Fee &amp; Billing</span><span class="text-orange-400/50">•</span>
-      <span>Staff &amp; Payroll</span><span class="text-orange-400/50">•</span>
-      <span>Parent Portal</span><span class="text-orange-400/50">•</span>
-      <span>Multi-Currency</span><span class="text-orange-400/50">•</span>
-    </div>
-    <div class="flex items-center gap-10 pr-10" aria-hidden="true">
-      <span>CBT Engine</span><span class="text-orange-400/50">•</span>
-      <span>Instant Report Cards</span><span class="text-orange-400/50">•</span>
-      <span>Admissions Workflow</span><span class="text-orange-400/50">•</span>
-      <span>Fee &amp; Billing</span><span class="text-orange-400/50">•</span>
-      <span>Staff &amp; Payroll</span><span class="text-orange-400/50">•</span>
-      <span>Parent Portal</span><span class="text-orange-400/50">•</span>
-      <span>Multi-Currency</span><span class="text-orange-400/50">•</span>
-    </div>
-  </div>
-</div>
-
-<!-- ============================================================ COUNTDOWN ============================================================ -->
-<section class="relative py-20" style="background:var(--qv-navy-900);">
-  <div class="absolute inset-0 blueprint opacity-40"></div>
-  <div class="relative max-w-4xl mx-auto px-5 text-center">
-    <p data-reveal class="badge-eyebrow text-orange-400 uppercase mb-3">Countdown to launch</p>
-    <h2 data-reveal class="font-display text-2xl sm:text-3xl text-white font-bold mb-10">Doors open in</h2>
-
-    <div data-reveal class="grid grid-cols-4 gap-3 sm:gap-6 max-w-2xl mx-auto">
-      <div class="glass rounded-2xl py-6 sm:py-8">
-        <p id="cd-days" class="digit-box text-3xl sm:text-5xl font-bold text-white">00</p>
-        <p class="badge-eyebrow text-white/40 uppercase mt-2">Days</p>
-      </div>
-      <div class="glass rounded-2xl py-6 sm:py-8">
-        <p id="cd-hours" class="digit-box text-3xl sm:text-5xl font-bold text-white">00</p>
-        <p class="badge-eyebrow text-white/40 uppercase mt-2">Hours</p>
-      </div>
-      <div class="glass rounded-2xl py-6 sm:py-8">
-        <p id="cd-mins" class="digit-box text-3xl sm:text-5xl font-bold text-white">00</p>
-        <p class="badge-eyebrow text-white/40 uppercase mt-2">Minutes</p>
-      </div>
-      <div class="glass rounded-2xl py-6 sm:py-8">
-        <p id="cd-secs" class="digit-box text-3xl sm:text-5xl font-bold text-orange-400">00</p>
-        <p class="badge-eyebrow text-white/40 uppercase mt-2">Seconds</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ============================================================ PROBLEM / SOLUTION ============================================================ -->
-<section class="relative py-24" style="background:var(--qv-paper);">
-  <div class="max-w-7xl mx-auto px-5 sm:px-8">
-    <div class="grid lg:grid-cols-2 gap-14 items-start">
-      <div data-reveal>
-        <p class="badge-eyebrow uppercase text-orange-500 mb-3">The Problem</p>
-        <h2 class="font-display text-3xl sm:text-4xl font-extrabold mb-6 leading-tight">
-          Running a school still means fighting your own paperwork.
-        </h2>
-        <ul class="space-y-4 text-slate-600">
-          <li class="flex items-start gap-3">
-            <i class="fa-solid fa-xmark text-red-500 mt-1"></i>
-            <span>Results computed by hand across scattered spreadsheets, prone to error and delay.</span>
-          </li>
-          <li class="flex items-start gap-3">
-            <i class="fa-solid fa-xmark text-red-500 mt-1"></i>
-            <span>Fee balances, attendance, and admissions tracked in separate, disconnected tools.</span>
-          </li>
-          <li class="flex items-start gap-3">
-            <i class="fa-solid fa-xmark text-red-500 mt-1"></i>
-            <span>Parents left guessing — no timely, professional communication on their child's progress.</span>
-          </li>
-        </ul>
-      </div>
-
-      <div data-reveal class="rounded-3xl p-9" style="background:var(--qv-navy-900);">
-        <p class="badge-eyebrow uppercase text-orange-400 mb-3">The Qavona Way</p>
-        <h3 class="font-display text-2xl sm:text-3xl font-extrabold text-white mb-6 leading-tight">
-          One secure hub. Every operation, automated.
-        </h3>
-        <ul class="space-y-4 text-white/70">
-          <li class="flex items-start gap-3">
-            <i class="fa-solid fa-check text-orange-400 mt-1"></i>
-            <span>Grades auto-computed with class averages, positions, and remarks — in seconds, not days.</span>
-          </li>
-          <li class="flex items-start gap-3">
-            <i class="fa-solid fa-check text-orange-400 mt-1"></i>
-            <span>Admissions, attendance, fees, and staff records live in one connected system.</span>
-          </li>
-          <li class="flex items-start gap-3">
-            <i class="fa-solid fa-check text-orange-400 mt-1"></i>
-            <span>Polished, branded report cards and instant updates delivered straight to parents.</span>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ============================================================ FEATURES (Bento) ============================================================ -->
-<section id="features" class="relative py-24" style="background:var(--qv-paper-dim);">
-  <div class="max-w-7xl mx-auto px-5 sm:px-8">
-    <div data-reveal class="max-w-2xl mb-14">
-      <p class="badge-eyebrow uppercase text-orange-500 mb-3">Core Modules</p>
-      <h2 class="font-display text-3xl sm:text-4xl font-extrabold mb-4">Everything your school needs to run, in one place.</h2>
-      <p class="text-slate-600 text-lg">A tightly integrated suite — not a bundle of bolted-together tools.</p>
+<!-- =========================================================
+     SECTION 05 — FEATURES (Bento grid)
+     ========================================================= -->
+<section id="features" class="py-24 lg:py-32 bg-white border-y border-line-dark">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="max-w-2xl mb-16 reveal-section">
+      <p class="text-gold text-xs font-bold tracking-[0.2em] uppercase mb-3">Core Modules</p>
+      <h2 class="font-display text-3xl sm:text-4xl lg:text-[2.75rem] font-bold tracking-tight leading-tight">Everything a school office actually runs on</h2>
     </div>
 
-    <div class="grid md:grid-cols-6 gap-5">
-      <!-- CBT - large -->
-      <div data-reveal class="bento-card reg-marks md:col-span-4 rounded-3xl p-8 flex flex-col justify-between min-h-[280px]" style="background:var(--qv-navy-900); border:1px solid transparent;">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div class="bento-card reveal-section md:col-span-2 rounded-2xl p-8 flex flex-col justify-between min-h-[240px]">
         <div>
-          <div class="mod-badge mod-badge-dark">
-            <i class="fa-solid fa-laptop-code" style="color:var(--qv-orange-2);"></i>
-            <span class="mod-index">MOD·01</span>
-          </div>
-          <h3 class="font-display text-2xl font-bold text-white mb-3">Computer-Based Testing</h3>
-          <p class="text-white/60 max-w-md">A full CBT engine for timed, auto-graded assessments — from class quizzes to standardized exams, sat securely on-platform.</p>
-        </div>
-        <div class="flex gap-2 mt-6 flex-wrap">
-          <span class="badge-eyebrow text-white/50 border border-white/15 rounded-full px-3 py-1.5">Auto-grading</span>
-          <span class="badge-eyebrow text-white/50 border border-white/15 rounded-full px-3 py-1.5">Timed sessions</span>
-          <span class="badge-eyebrow text-white/50 border border-white/15 rounded-full px-3 py-1.5">Question banks</span>
+          <div class="w-11 h-11 rounded-xl gold-gradient flex items-center justify-center text-white mb-5"><i class="fa-solid fa-laptop-code"></i></div>
+          <h3 class="font-display text-xl font-bold mb-2">Computer-Based Testing (CBT)</h3>
+          <p class="text-slate-500 text-[15px] leading-relaxed max-w-md">A full CBT engine built in — schedule exams, auto-mark objective questions, and pull results straight into the Results Engine. No separate testing software to license.</p>
         </div>
       </div>
-
-      <!-- Instant results - medium -->
-      <div data-reveal class="bento-card reg-marks md:col-span-2 rounded-3xl p-8 min-h-[280px] flex flex-col justify-between" style="background:white; border:1px solid var(--qv-line-dark);">
+      <div class="bento-card reveal-section rounded-2xl p-8 flex flex-col justify-between min-h-[240px]">
         <div>
-          <div class="mod-badge">
-            <i class="fa-solid fa-file-invoice" style="color:var(--qv-orange);"></i>
-            <span class="mod-index">MOD·02</span>
-          </div>
-          <h3 class="font-display text-xl font-bold mb-3">Instant Results &amp; Report Cards</h3>
-          <p class="text-slate-600 text-sm">Branded, print-ready report cards generated the moment scores are entered.</p>
+          <div class="w-11 h-11 rounded-full border-2 border-ink flex items-center justify-center text-ink mb-5"><i class="fa-solid fa-file-invoice"></i></div>
+          <h3 class="font-display text-xl font-bold mb-2">Results & Report Cards</h3>
+          <p class="text-slate-500 text-[15px] leading-relaxed">Drag-and-drop Template Builder, rendered to pixel-perfect PDF — what you design is exactly what prints.</p>
         </div>
       </div>
 
-      <!-- Portals -->
-      <div data-reveal class="bento-card reg-marks md:col-span-2 rounded-3xl p-8 min-h-[260px]" style="background:white; border:1px solid var(--qv-line-dark);">
-        <div class="mod-badge">
-          <i class="fa-solid fa-users-gear" style="color:var(--qv-orange);"></i>
-          <span class="mod-index">MOD·03</span>
+      <div class="bento-card reveal-section rounded-2xl p-8 flex flex-col justify-between min-h-[220px]">
+        <div>
+          <div class="w-11 h-11 rounded-xl bg-ink flex items-center justify-center text-gold mb-5"><i class="fa-solid fa-users-gear"></i></div>
+          <h3 class="font-display text-xl font-bold mb-2">Admin, Teacher, Student & Parent Portals</h3>
+          <p class="text-slate-500 text-[15px] leading-relaxed">Role-based access, strictly scoped — everyone logs into the view built for them.</p>
         </div>
-        <h3 class="font-display text-xl font-bold mb-3">Secure Portals</h3>
-        <p class="text-slate-600 text-sm">Dedicated, role-scoped access for Admins, Principals, Teachers, Students and Parents.</p>
+      </div>
+      <div class="bento-card reveal-section rounded-2xl p-8 flex flex-col justify-between min-h-[220px]">
+        <div>
+          <div class="w-11 h-11 rounded-xl bg-ink flex items-center justify-center text-gold mb-5"><i class="fa-solid fa-calendar-check"></i></div>
+          <h3 class="font-display text-xl font-bold mb-2">Attendance, Timetable & Fees</h3>
+          <p class="text-slate-500 text-[15px] leading-relaxed">Daily attendance feeds straight into report cards; invoicing and balances update in real time.</p>
+        </div>
+      </div>
+      <div class="bento-card reveal-section rounded-2xl p-8 flex flex-col justify-between min-h-[220px]">
+        <div>
+          <div class="w-11 h-11 rounded-full border-2 border-ink flex items-center justify-center text-ink mb-5"><i class="fa-solid fa-bell"></i></div>
+          <h3 class="font-display text-xl font-bold mb-2">Communication & Notifications</h3>
+          <p class="text-slate-500 text-[15px] leading-relaxed">Batch-email report cards and announcements to guardians the moment they're ready.</p>
+        </div>
       </div>
 
-      <!-- Attendance / timetable / fees -->
-      <div data-reveal class="bento-card reg-marks md:col-span-2 rounded-3xl p-8 min-h-[260px]" style="background:white; border:1px solid var(--qv-line-dark);">
-        <div class="mod-badge">
-          <i class="fa-solid fa-calendar-check" style="color:var(--qv-orange);"></i>
-          <span class="mod-index">MOD·04</span>
-        </div>
-        <h3 class="font-display text-xl font-bold mb-3">Attendance, Timetable &amp; Fees</h3>
-        <p class="text-slate-600 text-sm">Daily attendance, class schedules, and fee tracking — all feeding straight into report cards.</p>
+      <div class="bento-card reveal-section rounded-2xl p-8 flex flex-col justify-center min-h-[220px] bg-ink text-white">
+        <span class="font-display text-6xl font-bold text-gold leading-none">3</span>
+        <p class="text-white font-semibold text-sm mt-3">assessment domains, tracked automatically</p>
+        <p class="text-slate-400 text-xs mt-1">Cognitive (C.A. &amp; exams), Affective, and Psychomotor — including punctuality &amp; neatness.</p>
       </div>
-
-      <!-- Communication -->
-      <div data-reveal class="bento-card reg-marks md:col-span-2 rounded-3xl p-8 min-h-[260px]" style="background:white; border:1px solid var(--qv-line-dark);">
-        <div class="mod-badge">
-          <i class="fa-solid fa-comments" style="color:var(--qv-orange);"></i>
-          <span class="mod-index">MOD·05</span>
+      <div class="bento-card reveal-section md:col-span-2 rounded-2xl p-8 flex flex-col md:flex-row md:items-center gap-6 min-h-[220px]">
+        <div class="flex-1">
+          <div class="w-11 h-11 rounded-xl gold-gradient flex items-center justify-center text-white mb-5"><i class="fa-solid fa-chart-pie"></i></div>
+          <h3 class="font-display text-xl font-bold mb-2">Advanced Analytics & Reports</h3>
+          <p class="text-slate-500 text-[15px] leading-relaxed max-w-sm">Class averages, rank distributions, attendance trends, and fee-collection dashboards — auto-computed every term.</p>
         </div>
-        <h3 class="font-display text-xl font-bold mb-3">Communication &amp; Notifications</h3>
-        <p class="text-slate-600 text-sm">Bulk email and SMS to guardians — announcements, results, and reminders, sent in one click.</p>
-      </div>
-
-      <!-- Analytics - wide -->
-      <div data-reveal class="bento-card reg-marks md:col-span-6 rounded-3xl p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6" style="background:var(--qv-navy-900);">
-        <div class="flex items-start gap-5">
-          <div class="mod-badge mod-badge-dark shrink-0 mb-0">
-            <i class="fa-solid fa-chart-line" style="color:var(--qv-orange-2);"></i>
-            <span class="mod-index">MOD·06</span>
-          </div>
-          <div>
-            <h3 class="font-display text-xl font-bold text-white mb-2">Advanced Analytics &amp; Reports</h3>
-            <p class="text-white/60 max-w-lg text-sm">Performance trends, class averages, and school-wide KPIs — surfaced automatically, no manual tallying.</p>
-          </div>
+        <div class="hidden md:flex flex-col gap-2 w-40">
+          <div class="h-2.5 rounded-full bg-slate-100 overflow-hidden"><div class="h-full w-4/5 gold-gradient"></div></div>
+          <div class="h-2.5 rounded-full bg-slate-100 overflow-hidden"><div class="h-full w-3/5 gold-gradient"></div></div>
+          <div class="h-2.5 rounded-full bg-slate-100 overflow-hidden"><div class="h-full w-full gold-gradient"></div></div>
         </div>
-        <a href="#waitlist" class="btn-ghost rounded-full px-5 py-2.5 text-sm whitespace-nowrap">See it at launch</a>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ============================================================ BENEFITS / IMPACT ============================================================ -->
-<section id="benefits" class="relative py-24" style="background:var(--qv-paper);">
-  <div class="max-w-7xl mx-auto px-5 sm:px-8">
-    <div data-reveal class="max-w-2xl mb-14">
-      <p class="badge-eyebrow uppercase text-orange-500 mb-3">Built for Impact</p>
-      <h2 class="font-display text-3xl sm:text-4xl font-extrabold mb-4">Weeks of admin work, down to minutes.</h2>
-      <p class="text-slate-600 text-lg">Automation that gives time back to the people actually teaching.</p>
+<!-- =========================================================
+     SECTION 06 — WHY QAVONA SMS (lettered advantages A–E)
+     ========================================================= -->
+<section id="why" class="py-24 lg:py-32 bg-ink relative overflow-hidden">
+  <svg viewBox="0 0 500 500" class="absolute -top-32 left-1/2 -translate-x-1/2 w-[700px] h-[700px] opacity-[0.07] pointer-events-none">
+    <circle cx="250" cy="250" r="220" fill="none" stroke="white" stroke-width="1" class="orbit-ring"/>
+    <circle cx="250" cy="250" r="150" fill="none" stroke="white" stroke-width="1" class="orbit-ring-rev"/>
+  </svg>
+
+  <div class="relative max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="max-w-2xl mb-16 reveal-section">
+      <p class="text-gold text-xs font-bold tracking-[0.2em] uppercase mb-3">What Sets It Apart</p>
+      <h2 class="font-display text-3xl sm:text-4xl lg:text-[2.75rem] font-bold tracking-tight text-white leading-tight">Not just a database for schools</h2>
     </div>
 
-    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-      <div data-reveal class="rounded-2xl p-7 border" style="border-color:var(--qv-line-dark); background:white;">
-        <p class="font-mono text-4xl font-bold text-orange-500 mb-2 stat-count" data-count="95" data-suffix="%">0%</p>
-        <p class="text-slate-600 text-sm">Less time spent computing and compiling results manually</p>
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="reveal-section glass-card rounded-2xl p-7 flex gap-5">
+        <span class="ghost-letter ghost-num-dark shrink-0">A</span>
+        <div>
+          <h3 class="font-display text-lg font-bold text-white mb-2">Aesthetic & UX excellence</h3>
+          <p class="text-slate-300 text-[15px] leading-relaxed">A premium, glassmorphic interface with modern typography and micro-animations — carried straight through into the PDF outputs schools hand to parents.</p>
+        </div>
       </div>
-      <div data-reveal class="rounded-2xl p-7 border" style="border-color:var(--qv-line-dark); background:white;">
-        <p class="font-mono text-4xl font-bold text-orange-500 mb-2 stat-count" data-count="1" data-suffix="-Click">0</p>
-        <p class="text-slate-600 text-sm">Batch report card generation &amp; dispatch to guardians</p>
+      <div class="reveal-section glass-card rounded-2xl p-7 flex gap-5">
+        <span class="ghost-letter ghost-num-dark shrink-0">B</span>
+        <div>
+          <h3 class="font-display text-lg font-bold text-white mb-2">Total document customizability</h3>
+          <p class="text-slate-300 text-[15px] leading-relaxed">The Widget-Based Layout Engine gives 100% WYSIWYG parity — what you arrange on screen is exactly what prints, logo placement and all.</p>
+        </div>
       </div>
-      <div data-reveal class="rounded-2xl p-7 border" style="border-color:var(--qv-line-dark); background:white;">
-        <p class="font-mono text-4xl font-bold text-orange-500 mb-2 stat-count" data-count="100" data-suffix="%">0%</p>
-        <p class="text-slate-600 text-sm">WYSIWYG parity between on-screen preview and printed PDF</p>
+      <div class="reveal-section glass-card rounded-2xl p-7 flex gap-5">
+        <span class="ghost-letter ghost-num-dark shrink-0">C</span>
+        <div>
+          <h3 class="font-display text-lg font-bold text-white mb-2">Built for global scale</h3>
+          <p class="text-slate-300 text-[15px] leading-relaxed">Native multi-currency support (USD, NGN, ZAR, GHS and more) plus a site-wide translation engine, built for international school communities.</p>
+        </div>
       </div>
-      <div data-reveal class="rounded-2xl p-7 border" style="border-color:var(--qv-line-dark); background:white;">
-        <p class="font-mono text-4xl font-bold text-orange-500 mb-2">Multi</p>
-        <p class="text-slate-600 text-sm">Currency support, built for schools operating across borders</p>
+      <div class="reveal-section glass-card rounded-2xl p-7 flex gap-5">
+        <span class="ghost-letter ghost-num-dark shrink-0">D</span>
+        <div>
+          <h3 class="font-display text-lg font-bold text-white mb-2">Hardened security posture</h3>
+          <p class="text-slate-300 text-[15px] leading-relaxed">A strict Default-Deny model, audited through a dedicated security review — every query is locked to the user's institution and role, protecting minors' records.</p>
+        </div>
+      </div>
+      <div class="reveal-section glass-card rounded-2xl p-7 flex gap-5 md:col-span-2">
+        <span class="ghost-letter ghost-num-dark shrink-0">E</span>
+        <div>
+          <h3 class="font-display text-lg font-bold text-white mb-2">Frictionless automation</h3>
+          <p class="text-slate-300 text-[15px] leading-relaxed">Auto-generated remarks based on performance bands, auto-calculated balances, and one-click batch operations — like emailing 500 report cards to guardians in a single send.</p>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ============================================================ HOW IT WORKS ============================================================ -->
-<section id="how-it-works" class="relative py-24" style="background:var(--qv-navy-900);">
-  <div class="absolute inset-0 blueprint opacity-30"></div>
-  <div class="relative max-w-7xl mx-auto px-5 sm:px-8">
-    <div data-reveal class="max-w-2xl mb-16">
-      <p class="badge-eyebrow uppercase text-orange-400 mb-3">How it works</p>
-      <h2 class="font-display text-3xl sm:text-4xl font-extrabold text-white mb-4">From setup to your first report card.</h2>
-      <p class="text-white/60 text-lg">A guided rollout — your data structured correctly, from day one.</p>
+<!-- =========================================================
+     SECTION 07 — HOW IT WORKS (staggered ghost-numeral steps)
+     ========================================================= -->
+<section id="how-it-works" class="py-24 lg:py-32 bg-white border-y border-line-dark">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="max-w-2xl mb-16 reveal-section">
+      <p class="text-gold text-xs font-bold tracking-[0.2em] uppercase mb-3">How It Works</p>
+      <h2 class="font-display text-3xl sm:text-4xl lg:text-[2.75rem] font-bold tracking-tight leading-tight">From onboarding to results day</h2>
     </div>
 
-    <div class="grid md:grid-cols-4 gap-8">
-      <div data-reveal class="relative">
-        <p class="font-mono text-orange-400/60 text-sm mb-3">Step 01</p>
-        <h3 class="font-display text-lg font-bold text-white mb-2">Set up your school</h3>
-        <p class="text-white/55 text-sm">Add classes, subjects, terms, and grading criteria — configured to match how your school actually runs.</p>
+    <div class="grid md:grid-cols-4 gap-x-6 gap-y-10 relative">
+      <svg class="hidden md:block absolute top-6 left-0 right-0 w-full h-10 pointer-events-none" viewBox="0 0 1000 40" preserveAspectRatio="none">
+        <path d="M60 10 Q 250 34, 440 12 T 940 14" fill="none" stroke="#E2E5EA" stroke-width="2" stroke-dasharray="1 10" stroke-linecap="round"/>
+      </svg>
+
+      <div class="reveal-section relative">
+        <span class="ghost-num block mb-3">01</span>
+        <h3 class="font-display font-bold text-lg mb-2">Set up your school</h3>
+        <p class="text-slate-500 text-[15px] leading-relaxed">Branding, terms, classes, grading bands, and currency — configured once in a guided onboarding flow.</p>
       </div>
-      <div data-reveal class="relative">
-        <p class="font-mono text-orange-400/60 text-sm mb-3">Step 02</p>
-        <h3 class="font-display text-lg font-bold text-white mb-2">Onboard your people</h3>
-        <p class="text-white/55 text-sm">Invite staff and students into role-scoped portals, each seeing exactly what they need to.</p>
+      <div class="reveal-section relative md:mt-6">
+        <span class="ghost-num block mb-3">02</span>
+        <h3 class="font-display font-bold text-lg mb-2">Import staff & students</h3>
+        <p class="text-slate-500 text-[15px] leading-relaxed">Bulk-upload rosters, assign roles, and link guardians to their wards' accounts.</p>
       </div>
-      <div data-reveal class="relative">
-        <p class="font-mono text-orange-400/60 text-sm mb-3">Step 03</p>
-        <h3 class="font-display text-lg font-bold text-white mb-2">Run the term</h3>
-        <p class="text-white/55 text-sm">Track attendance, collect fees, and administer CBT exams — all inside one connected system.</p>
+      <div class="reveal-section relative md:-mt-2">
+        <span class="ghost-num block mb-3">03</span>
+        <h3 class="font-display font-bold text-lg mb-2">Run the term</h3>
+        <p class="text-slate-500 text-[15px] leading-relaxed">Attendance, CBT exams, fees, and continuous assessment — logged as the term actually happens.</p>
       </div>
-      <div data-reveal class="relative">
-        <p class="font-mono text-orange-400/60 text-sm mb-3">Step 04</p>
-        <h3 class="font-display text-lg font-bold text-white mb-2">Publish results</h3>
-        <p class="text-white/55 text-sm">Batch-generate branded report cards and dispatch them to guardians in a single click.</p>
+      <div class="reveal-section relative md:mt-5">
+        <span class="ghost-num block mb-3" style="-webkit-text-stroke-color:var(--gold); opacity:0.55;">04</span>
+        <h3 class="font-display font-bold text-lg mb-2">Publish results</h3>
+        <p class="text-slate-500 text-[15px] leading-relaxed">Batch-generate report cards and email every guardian the moment scores are finalized.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ============================================================ TESTIMONIALS ============================================================ -->
-<section class="relative py-24" style="background:var(--qv-paper-dim);">
-  <div class="max-w-7xl mx-auto px-5 sm:px-8">
-    <div data-reveal class="max-w-2xl mb-14 mx-auto text-center">
-      <p class="badge-eyebrow uppercase text-orange-500 mb-3">Early Feedback</p>
-      <h2 class="font-display text-3xl sm:text-4xl font-extrabold">What early partner schools are saying.</h2>
+<!-- =========================================================
+     SECTION 08 — IMPACT / CAPABILITY STATS
+     ========================================================= -->
+<section class="py-20 lg:py-28 bg-paper">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="max-w-2xl mb-14 reveal-section">
+      <p class="text-gold text-xs font-bold tracking-[0.2em] uppercase mb-3">Built To Handle It</p>
+      <h2 class="font-display text-3xl sm:text-4xl font-bold tracking-tight leading-tight">What the platform is built to carry</h2>
+    </div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="reveal-section text-center sm:text-left">
+        <span class="font-display text-5xl font-bold text-ink">3</span>
+        <p class="text-slate-500 text-sm mt-2">assessment domains scored — Cognitive, Affective, Psychomotor</p>
+      </div>
+      <div class="reveal-section text-center sm:text-left">
+        <span class="font-display text-5xl font-bold text-ink">4+</span>
+        <p class="text-slate-500 text-sm mt-2">currencies supported out of the box — USD, NGN, ZAR, GHS</p>
+      </div>
+      <div class="reveal-section text-center sm:text-left">
+        <span class="font-display text-5xl font-bold text-ink">500+</span>
+        <p class="text-slate-500 text-sm mt-2">report cards batch-generated and emailed in a single click</p>
+      </div>
+      <div class="reveal-section text-center sm:text-left">
+        <span class="font-display text-5xl font-bold text-ink">5</span>
+        <p class="text-slate-500 text-sm mt-2">dedicated role-based portals — Admin to Guardian</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     SECTION 09 — TESTIMONIALS (placeholders, early-access framing)
+     ========================================================= -->
+<section class="py-24 lg:py-32 bg-white border-y border-line-dark overflow-hidden">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="max-w-2xl mb-14 reveal-section">
+      <p class="text-gold text-xs font-bold tracking-[0.2em] uppercase mb-3">Early Access Voices</p>
+      <h2 class="font-display text-3xl sm:text-4xl lg:text-[2.75rem] font-bold tracking-tight leading-tight">What pilot schools are saying</h2>
+      <p class="text-slate-500 mt-3 text-sm">Illustrative feedback from schools previewing Qavona SMS ahead of public launch.</p>
     </div>
 
-    <div class="grid md:grid-cols-3 gap-6">
-      <div data-reveal class="rounded-2xl p-7 bg-white border" style="border-color:var(--qv-line-dark);">
-        <div class="flex gap-1 text-orange-400 mb-4">
-          <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-        </div>
-        <p class="text-slate-700 mb-6">"What we saw in the preview finally looked like software built for how our school actually runs — not a generic template."</p>
-        <div class="flex items-center gap-3">
-          <div class="stamp-initial">A</div>
-          <div>
-            <p class="font-semibold text-sm">School Administrator</p>
-            <p class="text-slate-500 text-xs">Catawba Ridge High School (Fort Mill), South Carolina </p>
-          </div>
-        </div>
-      </div>
-
-      <div data-reveal class="rounded-2xl p-7 bg-white border" style="border-color:var(--qv-line-dark);">
-        <div class="flex gap-1 text-orange-400 mb-4">
-          <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-        </div>
-        <p class="text-slate-700 mb-6">"Computing results and remarks used to take our staff days. Seeing it happen automatically was the moment we signed up for early access."</p>
-        <div class="flex items-center gap-3">
-          <div class="stamp-initial" style="transform:rotate(3deg);">V</div>
+    <div class="grid lg:grid-cols-5 gap-6 items-stretch">
+      <div class="reveal-section lg:col-span-3 rounded-2xl bg-ink text-white p-8 lg:p-10 flex flex-col justify-between relative overflow-hidden">
+        <span class="font-display text-7xl text-gold/30 leading-none absolute top-6 left-8">"</span>
+        <p class="text-white text-xl lg:text-2xl leading-snug font-medium relative z-10 mt-8">We used to lose two full days at the end of every term just formatting report cards. In the preview, we built our template once and it just generates — perfectly, every time.</p>
+        <div class="flex items-center gap-3 mt-8 relative z-10">
+          <div class="hex-avatar w-11 h-11 flex items-center justify-center font-display font-bold text-sm" style="background:linear-gradient(135deg,#F97316,#FFB648)">VP</div>
           <div>
             <p class="font-semibold text-sm">Vice Principal, Academics</p>
-            <p class="text-slate-500 text-xs">Solardad Schools, Okene</p>
+            <p class="text-xs text-slate-400">Pilot school, Lagos</p>
           </div>
         </div>
       </div>
 
-      <div data-reveal class="rounded-2xl p-7 bg-white border" style="border-color:var(--qv-line-dark);">
-        <div class="flex gap-1 text-orange-400 mb-4">
-          <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+      <div class="lg:col-span-2 flex flex-col gap-6">
+        <div class="reveal-section bento-card rounded-2xl p-6 flex-1">
+          <p class="text-slate-600 text-[15px] leading-relaxed mb-5">"Running CBT and continuous assessment in the same place the report card reads from means one less system to reconcile at term end."</p>
+          <div class="flex items-center gap-3">
+            <div class="hex-avatar w-9 h-9 flex items-center justify-center font-display font-bold text-xs text-white" style="background:#334467">EX</div>
+            <div>
+              <p class="font-semibold text-sm">Exams Officer</p>
+              <p class="text-xs text-slate-400">Pilot school, Abuja</p>
+            </div>
+          </div>
         </div>
-        <p class="text-slate-700 mb-6">"The parent communication piece is what stood out — instant, professional updates instead of chasing paper report cards."</p>
-        <div class="flex items-center gap-3">
-          <div class="stamp-initial" style="transform:rotate(-4deg); font-size:0.75rem;">IT</div>
-          <div>
-            <p class="font-semibold text-sm">IT Coordinator</p>
-            <p class="text-slate-500 text-xs">Higher Ground Group of Schools</p>
+        <div class="reveal-section bento-card rounded-2xl p-6 flex-1">
+          <p class="text-slate-600 text-[15px] leading-relaxed mb-5">"Knowing every record is scoped to our school, by role, mattered more to our board than any feature list did."</p>
+          <div class="flex items-center gap-3">
+            <div class="hex-avatar w-9 h-9 flex items-center justify-center font-display font-bold text-xs text-white" style="background:#9D174D">IT</div>
+            <div>
+              <p class="font-semibold text-sm">IT Administrator</p>
+              <p class="text-xs text-slate-400">Pilot school, Port Harcourt</p>
+            </div>
           </div>
         </div>
       </div>
@@ -747,349 +623,490 @@
   </div>
 </section>
 
-<!-- ============================================================ FINAL CTA ============================================================ -->
-<section id="waitlist" class="relative py-24 overflow-hidden" style="background:var(--qv-navy-950);">
-  <div class="absolute inset-0 blueprint opacity-40"></div>
-  <div class="absolute inset-0 radial-glow"></div>
-  <div class="relative max-w-3xl mx-auto px-5 text-center">
-    <p data-reveal class="badge-eyebrow uppercase text-orange-400 mb-3">Reserve your spot</p>
-    <h2 data-reveal class="font-display text-3xl sm:text-4xl font-extrabold text-white mb-5">
-      Be first in line when Qavona SMS opens its doors.
-    </h2>
-    <p data-reveal class="text-white/60 text-lg mb-10">
-      Early waitlist schools get priority onboarding and exclusive launch pricing.
-    </p>
+<!-- =========================================================
+     SECTION 10 — FINAL CTA + SECOND WAITLIST FORM
+     ========================================================= -->
+<section id="waitlist" class="py-24 lg:py-32 bg-ink relative overflow-hidden">
+  <div class="absolute inset-0 ink-noise"></div>
+  <svg viewBox="0 0 500 500" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] opacity-[0.06] pointer-events-none">
+    <circle cx="250" cy="250" r="220" fill="none" stroke="white" stroke-width="1" class="orbit-ring"/>
+    <circle cx="250" cy="250" r="160" fill="none" stroke="white" stroke-width="1" class="orbit-ring-rev"/>
+  </svg>
 
-    <form data-reveal id="finalForm" class="waitlist-form flex flex-col sm:flex-row gap-3 max-w-lg mx-auto"
-          action="https://formspree.io/f/xkodnqzp" method="POST" novalidate>
-      <div class="flex-1 relative">
-        <i class="fa-solid fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-white/30"></i>
-        <input type="email" required name="email" autocomplete="email" inputmode="email" placeholder="you@yourschool.edu"
-          class="w-full pl-11 pr-4 py-3.5 rounded-xl bg-white/5 border border-white/15 text-white placeholder-white/35 focus:border-orange-400 focus:bg-white/10 outline-none transition-colors" />
+  <div class="relative max-w-3xl mx-auto px-6">
+    <div class="text-center mb-10 reveal-section">
+      <p class="text-gold text-xs font-bold tracking-[0.2em] uppercase mb-3">Reserve Your School's Spot</p>
+      <h2 class="font-display text-3xl sm:text-4xl font-bold tracking-tight text-white mb-3">Join the Qavona SMS waitlist</h2>
+      <p class="text-slate-300 max-w-md mx-auto">Early-access schools get founding pricing locked in for good, plus priority onboarding support.</p>
+    </div>
+
+    <div class="reveal-section rounded-3xl bg-white p-8 sm:p-12 relative overflow-hidden">
+      <svg viewBox="0 0 500 500" class="absolute -right-24 -bottom-24 w-72 h-72 opacity-[0.05] pointer-events-none">
+        <circle cx="250" cy="250" r="220" fill="none" stroke="#0B1220" stroke-width="1" class="orbit-ring"/>
+      </svg>
+
+      <form id="waitlist-form" action="https://formspree.io/f/xkodnqzp" method="POST" novalidate class="relative grid sm:grid-cols-2 gap-5 max-w-2xl mx-auto">
+
+        <div class="sm:col-span-1">
+          <label for="wl-name" class="block text-sm font-semibold mb-2">Full name</label>
+          <input id="wl-name" name="name" type="text" required placeholder="Jane Doe"
+            class="w-full px-4 py-3 rounded-xl border border-line-dark focus:border-gold outline-none text-sm">
+          <p class="error-msg text-red-500 text-xs mt-1 hidden">Please enter your name.</p>
+        </div>
+
+        <div class="sm:col-span-1">
+          <label for="wl-school" class="block text-sm font-semibold mb-2">School name</label>
+          <input id="wl-school" name="school" type="text" required placeholder="Greenfield Academy"
+            class="w-full px-4 py-3 rounded-xl border border-line-dark focus:border-gold outline-none text-sm">
+          <p class="error-msg text-red-500 text-xs mt-1 hidden">Please enter your school's name.</p>
+        </div>
+
+        <div class="sm:col-span-1">
+          <label for="wl-email" class="block text-sm font-semibold mb-2">Email address</label>
+          <input id="wl-email" name="email" type="email" required placeholder="jane@yourschool.edu"
+            class="w-full px-4 py-3 rounded-xl border border-line-dark focus:border-gold outline-none text-sm">
+          <p class="error-msg text-red-500 text-xs mt-1 hidden">Please enter a valid email.</p>
+        </div>
+
+        <div class="sm:col-span-1">
+          <label for="wl-size" class="block text-sm font-semibold mb-2">Student population</label>
+          <select id="wl-size" name="student_population" required class="w-full px-4 py-3 rounded-xl border border-line-dark focus:border-gold outline-none text-sm bg-white">
+            <option value="" disabled selected>Select a range</option>
+            <option>Under 200</option>
+            <option>200 – 500</option>
+            <option>500 – 1,500</option>
+            <option>1,500+</option>
+          </select>
+        </div>
+
+        <div class="sm:col-span-2">
+          <span class="block text-sm font-semibold mb-2">I am the school's...</span>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <label class="role-option cursor-pointer text-center border border-line-dark rounded-xl py-3 px-2 text-sm font-medium hover:border-gold transition-colors">
+              <input type="radio" name="role" value="Owner / Proprietor" class="sr-only" required>
+              <i class="fa-solid fa-building-columns block mb-1 text-gold"></i>Owner
+            </label>
+            <label class="role-option cursor-pointer text-center border border-line-dark rounded-xl py-3 px-2 text-sm font-medium hover:border-gold transition-colors">
+              <input type="radio" name="role" value="Principal / Head Teacher" class="sr-only" required>
+              <i class="fa-solid fa-user-tie block mb-1 text-gold"></i>Principal
+            </label>
+            <label class="role-option cursor-pointer text-center border border-line-dark rounded-xl py-3 px-2 text-sm font-medium hover:border-gold transition-colors">
+              <input type="radio" name="role" value="IT / Admin Staff" class="sr-only" required>
+              <i class="fa-solid fa-server block mb-1 text-gold"></i>IT/Admin
+            </label>
+            <label class="role-option cursor-pointer text-center border border-line-dark rounded-xl py-3 px-2 text-sm font-medium hover:border-gold transition-colors">
+              <input type="radio" name="role" value="Teacher" class="sr-only" required>
+              <i class="fa-solid fa-chalkboard-user block mb-1 text-gold"></i>Teacher
+            </label>
+          </div>
+          <p class="error-msg role-error text-red-500 text-xs mt-1 hidden">Please choose one.</p>
+        </div>
+
+        <div class="sm:col-span-2">
+          <label for="wl-message" class="block text-sm font-semibold mb-2">Anything you'd like us to know? <span class="text-slate-400 font-normal">(optional)</span></label>
+          <textarea id="wl-message" name="message" rows="3" placeholder="Tell us what you're currently using, or what matters most to you..."
+            class="w-full px-4 py-3 rounded-xl border border-line-dark focus:border-gold outline-none text-sm resize-none"></textarea>
+        </div>
+
+        <div class="sm:col-span-2">
+          <button type="submit" id="waitlist-submit-btn" class="w-full btn-gold text-white font-semibold py-4 rounded-full">
+            <span class="btn-label">Join the Waitlist <i class="fa-solid fa-paper-plane ml-2"></i></span>
+          </button>
+          <p class="error-msg submit-error text-red-500 text-xs mt-3 text-center hidden">Something went wrong sending your details — please try again, or email us directly.</p>
+          <p class="text-center text-xs text-slate-400 mt-3">We'll only email you about the Qavona SMS launch. Or reach us directly at <a href="mailto:Contact@qavona.com" class="text-gold font-medium">Contact@qavona.com</a></p>
+        </div>
+      </form>
+
+      <div id="waitlist-success" class="hidden text-center py-10 relative">
+        <div class="w-16 h-16 rounded-full gold-gradient text-white flex items-center justify-center text-2xl mx-auto mb-5">
+          <i class="fa-solid fa-check"></i>
+        </div>
+        <h3 class="font-display text-2xl font-bold mb-2">You're on the list! 🎓</h3>
+        <p class="text-slate-500 max-w-sm mx-auto">Welcome to the Qavona SMS early-access program. We'll be in touch well before doors open.</p>
       </div>
-      <input type="text" name="_gotcha" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true" />
-      <input type="hidden" name="_subject" value="New Qavona SMS Waitlist Signup" />
-      <input type="hidden" name="source" value="Final CTA form" />
-      <button type="submit" class="btn-primary rounded-xl px-6 py-3.5 whitespace-nowrap flex items-center justify-center gap-2">
-        <span class="btn-label">Join the Waitlist</span> <i class="fa-solid fa-arrow-right text-sm"></i>
-      </button>
-    </form>
-    <p class="form-msg text-sm mt-3 min-h-[20px]" role="status" aria-live="polite"></p>
+    </div>
   </div>
 </section>
 
-<!-- ============================================================ FAQ ============================================================ -->
-<section id="faq" class="relative py-24" style="background:var(--qv-paper);">
-  <div class="max-w-3xl mx-auto px-5 sm:px-8">
-    <div data-reveal class="mb-12 text-center">
-      <p class="badge-eyebrow uppercase text-orange-500 mb-3">Questions</p>
-      <h2 class="font-display text-3xl sm:text-4xl font-extrabold">Frequently asked questions.</h2>
+<!-- =========================================================
+     SECTION 11 — FAQ
+     ========================================================= -->
+<section id="faq" class="py-24 lg:py-32 bg-paper">
+  <div class="max-w-3xl mx-auto px-6 lg:px-10">
+    <div class="text-center mb-14 reveal-section">
+      <p class="text-gold text-xs font-bold tracking-[0.2em] uppercase mb-3">Questions</p>
+      <h2 class="font-display text-3xl sm:text-4xl font-bold tracking-tight">Frequently asked questions</h2>
     </div>
 
     <div class="space-y-3">
-      <div data-reveal class="faq-item rounded-2xl border overflow-hidden" style="border-color:var(--qv-line-dark);">
-        <button class="faq-toggle w-full flex items-center justify-between text-left px-6 py-5 font-semibold">
+      <div class="faq-item reveal-section border border-line-dark rounded-xl overflow-hidden bg-white">
+        <button class="faq-question w-full flex items-center justify-between text-left px-6 py-5 font-semibold" aria-expanded="false">
+          Is our students' and staff data secure?
+          <i class="fa-solid fa-plus faq-chevron transition-transform text-gold"></i>
+        </button>
+        <div class="faq-answer px-6">
+          <p class="text-slate-500 text-[15px] pb-5 leading-relaxed">Yes. Qavona SMS runs a strict Default-Deny authorization model — every database query is locked to the requesting user's specific school and role, so one institution's records can never leak into another's. The platform went through a dedicated security review focused on exactly this before we opened the waitlist.</p>
+        </div>
+      </div>
+
+      <div class="faq-item reveal-section border border-line-dark rounded-xl overflow-hidden bg-white">
+        <button class="faq-question w-full flex items-center justify-between text-left px-6 py-5 font-semibold" aria-expanded="false">
+          Can we design our own report card layout?
+          <i class="fa-solid fa-plus faq-chevron transition-transform text-gold"></i>
+        </button>
+        <div class="faq-answer px-6">
+          <p class="text-slate-500 text-[15px] pb-5 leading-relaxed">Yes — the Template Builder is drag-and-drop. Move your logo, resize columns, and toggle what's shown (like hiding class averages or positions) without writing any code. What you see in the builder is exactly what prints to PDF.</p>
+        </div>
+      </div>
+
+      <div class="faq-item reveal-section border border-line-dark rounded-xl overflow-hidden bg-white">
+        <button class="faq-question w-full flex items-center justify-between text-left px-6 py-5 font-semibold" aria-expanded="false">
+          Does Qavona SMS support schools outside Nigeria?
+          <i class="fa-solid fa-plus faq-chevron transition-transform text-gold"></i>
+        </button>
+        <div class="faq-answer px-6">
+          <p class="text-slate-500 text-[15px] pb-5 leading-relaxed">Yes. Multi-currency is built in from day one (USD, NGN, ZAR, GHS and more), and a site-wide translation layer means the interface isn't locked to a single language or region.</p>
+        </div>
+      </div>
+
+      <div class="faq-item reveal-section border border-line-dark rounded-xl overflow-hidden bg-white">
+        <button class="faq-question w-full flex items-center justify-between text-left px-6 py-5 font-semibold" aria-expanded="false">
+          Is there a CBT (Computer-Based Testing) module?
+          <i class="fa-solid fa-plus faq-chevron transition-transform text-gold"></i>
+        </button>
+        <div class="faq-answer px-6">
+          <p class="text-slate-500 text-[15px] pb-5 leading-relaxed">Yes, CBT is a core module, not a bolt-on. Objective questions are auto-marked and scores flow straight into the same Results Engine your report cards read from — no manual re-entry.</p>
+        </div>
+      </div>
+
+      <div class="faq-item reveal-section border border-line-dark rounded-xl overflow-hidden bg-white">
+        <button class="faq-question w-full flex items-center justify-between text-left px-6 py-5 font-semibold" aria-expanded="false">
+          What does early-access pricing mean for us?
+          <i class="fa-solid fa-plus faq-chevron transition-transform text-gold"></i>
+        </button>
+        <div class="faq-answer px-6">
+          <p class="text-slate-500 text-[15px] pb-5 leading-relaxed">Schools that join the waitlist before launch get a discounted founding rate that's locked in for as long as they stay subscribed, plus priority onboarding support when doors open.</p>
+        </div>
+      </div>
+
+      <div class="faq-item reveal-section border border-line-dark rounded-xl overflow-hidden bg-white">
+        <button class="faq-question w-full flex items-center justify-between text-left px-6 py-5 font-semibold" aria-expanded="false">
           When exactly does Qavona SMS launch?
-          <i class="fa-solid fa-plus faq-chevron text-orange-500"></i>
+          <i class="fa-solid fa-plus faq-chevron transition-transform text-gold"></i>
         </button>
-        <div class="faq-panel px-6"><p class="text-slate-600 pb-5">We're in final testing now. Join the waitlist and you'll be notified the moment early access opens — see the live countdown above for our current target.</p></div>
-      </div>
-
-      <div data-reveal class="faq-item rounded-2xl border overflow-hidden" style="border-color:var(--qv-line-dark);">
-        <button class="faq-toggle w-full flex items-center justify-between text-left px-6 py-5 font-semibold">
-          Which schools is Qavona built for?
-          <i class="fa-solid fa-plus faq-chevron text-orange-500"></i>
-        </button>
-        <div class="faq-panel px-6"><p class="text-slate-600 pb-5">Qavona is built for primary, secondary and international schools of any size — with native multi-currency support for schools operating across different regions.</p></div>
-      </div>
-
-      <div data-reveal class="faq-item rounded-2xl border overflow-hidden" style="border-color:var(--qv-line-dark);">
-        <button class="faq-toggle w-full flex items-center justify-between text-left px-6 py-5 font-semibold">
-          Can I customize our report cards?
-          <i class="fa-solid fa-plus faq-chevron text-orange-500"></i>
-        </button>
-        <div class="faq-panel px-6"><p class="text-slate-600 pb-5">Yes. The template builder lets you toggle grading criteria, rearrange layout elements, and apply your school's branding — with full parity between the on-screen preview and the final PDF.</p></div>
-      </div>
-
-      <div data-reveal class="faq-item rounded-2xl border overflow-hidden" style="border-color:var(--qv-line-dark);">
-        <button class="faq-toggle w-full flex items-center justify-between text-left px-6 py-5 font-semibold">
-          How is our data kept secure?
-          <i class="fa-solid fa-plus faq-chevron text-orange-500"></i>
-        </button>
-        <div class="faq-panel px-6"><p class="text-slate-600 pb-5">Qavona uses strict role-based access control and row-level data scoping, so every request is locked to the right school and role — preventing cross-tenant data exposure.</p></div>
-      </div>
-
-      <div data-reveal class="faq-item rounded-2xl border overflow-hidden" style="border-color:var(--qv-line-dark);">
-        <button class="faq-toggle w-full flex items-center justify-between text-left px-6 py-5 font-semibold">
-          What does early access pricing include?
-          <i class="fa-solid fa-plus faq-chevron text-orange-500"></i>
-        </button>
-        <div class="faq-panel px-6"><p class="text-slate-600 pb-5">Waitlist schools get priority onboarding support and locked-in launch pricing before public rates take effect.</p></div>
+        <div class="faq-answer px-6">
+          <p class="text-slate-500 text-[15px] pb-5 leading-relaxed">24 July 2026, 6:00 PM GMT — check the live countdown near the top of this page. Waitlist schools are onboarded ahead of general availability.</p>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ============================================================ FOOTER ============================================================ -->
-<footer class="relative pt-16 pb-8" style="background:var(--qv-navy-950); border-top:1px solid var(--qv-line);">
-  <div class="max-w-7xl mx-auto px-5 sm:px-8">
-    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-14">
-      <div>
-        <img src="qavona-logo.png" alt="Qavona SMS logo" class="h-10 w-auto mb-4"/>
-        <p class="text-white/45 text-sm leading-relaxed max-w-xs">The complete digital infrastructure for modern schools — launching soon.</p>
+<!-- =========================================================
+     FOOTER
+     ========================================================= -->
+<footer class="bg-ink-2 border-t border-line pt-16 pb-8">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10">
+    <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-10 pb-12">
+      <div class="lg:col-span-2">
+        <a href="#top" class="flex items-center gap-2.5 mb-4">
+          <img src="" data-logo-mark alt="Qavona logo" width="30" height="30" class="h-[30px] w-auto">
+          <span class="font-display font-bold text-lg text-white">QAVONA <span class="text-gold">SMS</span></span>
+        </a>
+        <p class="text-slate-400 text-sm leading-relaxed max-w-xs">The complete digital infrastructure for modern schools — admissions to results, fees to attendance, one login for everyone.</p>
+        <div class="flex gap-3 mt-6">
+          <a href="#" class="w-9 h-9 rounded-full glass-card flex items-center justify-center text-white text-sm hover:bg-gold transition-colors"><i class="fa-brands fa-x-twitter"></i></a>
+          <a href="#" class="w-9 h-9 rounded-full glass-card flex items-center justify-center text-white text-sm hover:bg-gold transition-colors"><i class="fa-brands fa-instagram"></i></a>
+          <a href="#" class="w-9 h-9 rounded-full glass-card flex items-center justify-center text-white text-sm hover:bg-gold transition-colors"><i class="fa-brands fa-linkedin-in"></i></a>
+        </div>
       </div>
+
       <div>
-        <p class="text-white font-semibold text-sm mb-4">Product</p>
-        <ul class="space-y-2.5 text-white/45 text-sm">
-          <li><a href="#features" class="hover:text-orange-400 transition-colors">Features</a></li>
-          <li><a href="#how-it-works" class="hover:text-orange-400 transition-colors">How it works</a></li>
-          <li><a href="#benefits" class="hover:text-orange-400 transition-colors">Impact</a></li>
+        <h4 class="text-white font-semibold text-sm mb-4">Platform</h4>
+        <ul class="space-y-3 text-sm text-slate-400">
+          <li><a href="#features" class="hover:text-white transition-colors">Features</a></li>
+          <li><a href="#why" class="hover:text-white transition-colors">Why Qavona</a></li>
+          <li><a href="#how-it-works" class="hover:text-white transition-colors">How it works</a></li>
         </ul>
       </div>
+
       <div>
-        <p class="text-white font-semibold text-sm mb-4">Company</p>
-        <ul class="space-y-2.5 text-white/45 text-sm">
-          <li><a href="#faq" class="hover:text-orange-400 transition-colors">FAQ</a></li>
-          <li><a href="#waitlist" class="hover:text-orange-400 transition-colors">Join Waitlist</a></li>
+        <h4 class="text-white font-semibold text-sm mb-4">Company</h4>
+        <ul class="space-y-3 text-sm text-slate-400">
+          <li><a href="#" class="hover:text-white transition-colors">About</a></li>
+          <li><a href="#faq" class="hover:text-white transition-colors">FAQ</a></li>
         </ul>
       </div>
+
       <div>
-        <p class="text-white font-semibold text-sm mb-4">Stay updated</p>
-        <p class="text-white/45 text-sm mb-4">Get launch news straight to your inbox.</p>
-        <a href="#waitlist" class="btn-primary rounded-full px-5 py-2.5 text-sm inline-block">Join Waitlist</a>
+        <h4 class="text-white font-semibold text-sm mb-4">Contact</h4>
+        <ul class="space-y-3 text-sm text-slate-400">
+          <li><a href="mailto:Contact@qavona.com" class="hover:text-white transition-colors flex items-center gap-2"><i class="fa-solid fa-envelope text-gold text-xs"></i>Contact@qavona.com</a></li>
+        </ul>
+        <a href="#waitlist" class="inline-block btn-gold text-white text-sm font-semibold px-5 py-2.5 rounded-full mt-5">Join Waitlist</a>
       </div>
     </div>
-    <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4" style="border-top:1px solid var(--qv-line);">
-      <p class="text-white/35 text-xs">© 2026 Qavona. All rights reserved.</p>
-      <div class="flex items-center gap-4 text-white/35 text-sm">
-        <a href="#" class="hover:text-orange-400 transition-colors"><i class="fa-brands fa-x-twitter"></i></a>
-        <a href="#" class="hover:text-orange-400 transition-colors"><i class="fa-brands fa-linkedin"></i></a>
-        <a href="#" class="hover:text-orange-400 transition-colors"><i class="fa-brands fa-instagram"></i></a>
+
+    <div class="border-t border-line pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+      <p>© <span id="year"></span> Qavona. All rights reserved.</p>
+      <div class="flex gap-6">
+        <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+        <a href="#" class="hover:text-white transition-colors">Terms of Service</a>
       </div>
     </div>
   </div>
 </footer>
 
-<!-- ============================================================ SCRIPTS ============================================================ -->
 <script>
-  // ---------------------------------------------------------------------
-  // CONFIG — edit these two values to customize behavior
-  // ---------------------------------------------------------------------
-  const LAUNCH_DATE = new Date("2026-08-12T00:00:00"); // <-- change launch date/time here
-  const FORMSPREE_ENDPOINT = "https://formspree.io/f/xkodnqzp"; // <-- change form endpoint here
+gsap.registerPlugin(ScrollTrigger);
 
-  // ---------------------------------------------------------------------
-  // Mobile menu
-  // ---------------------------------------------------------------------
-  const menuBtn = document.getElementById('menuBtn');
-  const mobileMenu = document.getElementById('mobileMenu');
-  menuBtn.addEventListener('click', () => {
-    const isOpen = mobileMenu.classList.toggle('open');
-    menuBtn.setAttribute('aria-expanded', isOpen);
-    menuBtn.innerHTML = isOpen ? '<i class="fa-solid fa-xmark"></i>' : '<i class="fa-solid fa-bars"></i>';
+/* ---------------------------------------------------------
+   LAUNCH_DATE — 24 July 2026, 6:00 PM GMT (UTC). Built with
+   Date.UTC() so every visitor sees the same countdown regardless
+   of their local timezone. Months are 0-indexed (6 = July).
+--------------------------------------------------------- */
+const LAUNCH_DATE = new Date(Date.UTC(2026, 6, 24, 18, 0, 0));
+
+document.getElementById('year').textContent = new Date().getFullYear();
+
+/* ---------- Inject official Qavona logo (base64, keeps file single-page) ---------- */
+const QAVONA_LOGO_MARK = 'data:image/webp;base64,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';
+document.querySelectorAll('[data-logo-mark]').forEach(img => { img.src = QAVONA_LOGO_MARK; });
+
+/* ---------- Sticky nav background on scroll ---------- */
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 40);
+});
+
+/* ---------- Mobile menu ---------- */
+const menuToggle = document.getElementById('menu-toggle');
+const mobileMenu = document.getElementById('mobile-menu');
+menuToggle.addEventListener('click', () => {
+  const isHidden = mobileMenu.classList.contains('hidden');
+  mobileMenu.classList.toggle('hidden');
+  menuToggle.innerHTML = isHidden ? '<i class="fa-solid fa-xmark"></i>' : '<i class="fa-solid fa-bars"></i>';
+  menuToggle.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+});
+document.querySelectorAll('.mobile-link').forEach(link => {
+  link.addEventListener('click', () => {
+    mobileMenu.classList.add('hidden');
+    menuToggle.innerHTML = '<i class="fa-solid fa-bars"></i>';
   });
-  document.querySelectorAll('#mobileMenu a').forEach(a => a.addEventListener('click', () => {
-    mobileMenu.classList.remove('open');
-    menuBtn.innerHTML = '<i class="fa-solid fa-bars"></i>';
+});
+
+/* ---------- Live countdown ---------- */
+function updateCountdown(){
+  const now = new Date();
+  let diff = LAUNCH_DATE - now;
+  if (diff < 0) diff = 0;
+
+  const days = Math.floor(diff / (1000*60*60*24));
+  const hours = Math.floor((diff / (1000*60*60)) % 24);
+  const mins = Math.floor((diff / (1000*60)) % 60);
+  const secs = Math.floor((diff / 1000) % 60);
+
+  document.getElementById('cd-days').textContent = String(days).padStart(2,'0');
+  document.getElementById('cd-hours').textContent = String(hours).padStart(2,'0');
+  document.getElementById('cd-mins').textContent = String(mins).padStart(2,'0');
+  document.getElementById('cd-secs').textContent = String(secs).padStart(2,'0');
+}
+updateCountdown();
+setInterval(updateCountdown, 1000);
+
+/* ---------- Waitlist counter (subtle live-feel increment) ---------- */
+(function(){
+  const el = document.getElementById('waitlist-count');
+  let base = 312;
+  setInterval(() => {
+    base += Math.floor(Math.random()*2);
+    el.textContent = base.toLocaleString();
+  }, 11000);
+})();
+
+/* ---------- Hero mini email form -> submits a quick signup, then offers the full form ---------- */
+document.getElementById('hero-mini-form').addEventListener('submit', function(e){
+  e.preventDefault();
+  const emailInput = document.getElementById('hero-email');
+  const email = emailInput.value.trim();
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if(!emailPattern.test(email)) { emailInput.focus(); return; }
+
+  const submitBtn = this.querySelector('button[type="submit"]');
+  const originalLabel = submitBtn.textContent;
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Sending...';
+
+  fetch('https://formspree.io/f/xkodnqzp', {
+    method:'POST',
+    headers:{ 'Accept':'application/json', 'Content-Type':'application/json' },
+    body: JSON.stringify({ email: email, source: 'Hero quick signup', message: 'Quick email capture from hero section' })
+  }).finally(() => {
+    submitBtn.disabled = false;
+    submitBtn.textContent = originalLabel;
+    document.getElementById('wl-email').value = email;
+    document.getElementById('waitlist').scrollIntoView({behavior:'smooth', block:'center'});
+    document.getElementById('wl-name').focus();
+  });
+});
+
+/* ---------- Role selector visual state ---------- */
+document.querySelectorAll('input[name="role"]').forEach(input => {
+  input.addEventListener('change', () => {
+    document.querySelectorAll('.role-option').forEach(label => {
+      label.style.borderColor = '';
+      label.style.background = '';
+    });
+    if(input.checked){
+      const label = input.closest('.role-option');
+      label.style.borderColor = 'var(--gold)';
+      label.style.background = 'rgba(249,115,22,0.06)';
+    }
+  });
+});
+
+/* ---------- Waitlist form validation + real Formspree submission + success/error states ---------- */
+const waitlistForm = document.getElementById('waitlist-form');
+waitlistForm.addEventListener('submit', function(e){
+  e.preventDefault();
+  let valid = true;
+
+  const name = document.getElementById('wl-name');
+  const school = document.getElementById('wl-school');
+  const email = document.getElementById('wl-email');
+  const roleChecked = document.querySelector('input[name="role"]:checked');
+  const submitBtn = document.getElementById('waitlist-submit-btn');
+  const btnLabel = submitBtn.querySelector('.btn-label');
+
+  document.querySelectorAll('.error-msg').forEach(m => m.classList.add('hidden'));
+
+  if(!name.value.trim()){
+    name.nextElementSibling.classList.remove('hidden');
+    valid = false;
+  }
+  if(!school.value.trim()){
+    school.nextElementSibling.classList.remove('hidden');
+    valid = false;
+  }
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if(!email.value.trim() || !emailPattern.test(email.value)){
+    email.nextElementSibling.classList.remove('hidden');
+    valid = false;
+  }
+  if(!roleChecked){
+    document.querySelector('.role-error').classList.remove('hidden');
+    valid = false;
+  }
+
+  if(!valid) return;
+
+  submitBtn.disabled = true;
+  btnLabel.innerHTML = 'Sending... <i class="fa-solid fa-spinner fa-spin ml-2"></i>';
+
+  const formData = new FormData(waitlistForm);
+  fetch(waitlistForm.action, {
+    method:'POST',
+    body: formData,
+    headers:{ 'Accept':'application/json' }
+  })
+  .then(response => {
+    if(!response.ok){ throw new Error('Formspree responded with an error'); }
+    waitlistForm.classList.add('hidden');
+    document.getElementById('waitlist-success').classList.remove('hidden');
+    fireConfetti();
+  })
+  .catch(() => {
+    document.querySelector('.submit-error').classList.remove('hidden');
+    submitBtn.disabled = false;
+    btnLabel.innerHTML = 'Join the Waitlist <i class="fa-solid fa-paper-plane ml-2"></i>';
+  });
+});
+
+/* ---------- FAQ accordion ---------- */
+document.querySelectorAll('.faq-item').forEach(item => {
+  const btn = item.querySelector('.faq-question');
+  btn.addEventListener('click', () => {
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(i => { i.classList.remove('open'); i.querySelector('.faq-question').setAttribute('aria-expanded','false'); });
+    if(!isOpen){
+      item.classList.add('open');
+      btn.setAttribute('aria-expanded','true');
+    }
+  });
+});
+
+/* ---------- Confetti (lightweight canvas, no deps) ---------- */
+function fireConfetti(){
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const colors = ['#F97316','#FFB648','#0B1220','#FFFFFF'];
+  const particles = Array.from({length: 140}, () => ({
+    x: canvas.width/2,
+    y: canvas.height/3,
+    vx: (Math.random()-0.5) * 14,
+    vy: (Math.random()-1.6) * 14,
+    size: 4 + Math.random()*5,
+    color: colors[Math.floor(Math.random()*colors.length)],
+    rotation: Math.random()*360,
+    rotSpeed: (Math.random()-0.5)*12,
+    gravity: 0.28 + Math.random()*0.12,
+    life: 0
   }));
 
-  // ---------------------------------------------------------------------
-  // Countdown timer
-  // ---------------------------------------------------------------------
-  function updateCountdown(){
-    const now = new Date();
-    let diff = LAUNCH_DATE - now;
-    if (diff < 0) diff = 0;
-
-    const days = Math.floor(diff / (1000*60*60*24));
-    const hours = Math.floor((diff / (1000*60*60)) % 24);
-    const mins = Math.floor((diff / (1000*60)) % 60);
-    const secs = Math.floor((diff / 1000) % 60);
-
-    document.getElementById('cd-days').textContent = String(days).padStart(2,'0');
-    document.getElementById('cd-hours').textContent = String(hours).padStart(2,'0');
-    document.getElementById('cd-mins').textContent = String(mins).padStart(2,'0');
-    document.getElementById('cd-secs').textContent = String(secs).padStart(2,'0');
-  }
-  updateCountdown();
-  setInterval(updateCountdown, 1000);
-
-  // ---------------------------------------------------------------------
-  // FAQ accordion
-  // ---------------------------------------------------------------------
-  document.querySelectorAll('.faq-toggle').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const item = btn.closest('.faq-item');
-      const wasOpen = item.classList.contains('open');
-      document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
-      if (!wasOpen) item.classList.add('open');
+  let frame = 0;
+  function animate(){
+    frame++;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    let alive = false;
+    particles.forEach(p => {
+      p.vy += p.gravity;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rotation += p.rotSpeed;
+      p.life++;
+      if(p.y < canvas.height + 20) alive = true;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rotation * Math.PI/180);
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = Math.max(0, 1 - p.life/140);
+      ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size*0.6);
+      ctx.restore();
     });
-  });
-
-  // ---------------------------------------------------------------------
-  // Waitlist forms -> Formspree (AJAX with a real <form action> fallback)
-  // + confetti success state + honeypot spam check + real error messages
-  // ---------------------------------------------------------------------
-  function initForm(form){
-    const msgEl = form.parentElement.querySelector('.form-msg');
-    const submitBtn = form.querySelector('button[type="submit"]');
-    const btnLabel = submitBtn.querySelector('.btn-label');
-    const originalLabel = btnLabel ? btnLabel.textContent : submitBtn.textContent;
-
-    function setMessage(text, tone){
-      // tone: 'error' | 'success'
-      msgEl.textContent = text;
-      msgEl.className = "form-msg text-sm mt-3 min-h-[20px] " +
-        (tone === 'error' ? 'text-red-400' : tone === 'success' ? 'text-emerald-400 font-medium' : '');
+    if(alive && frame < 150){
+      requestAnimationFrame(animate);
+    } else {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
     }
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      // Honeypot: if this hidden field got filled in, silently drop the submission
-      const honeypot = form.querySelector('input[name="_gotcha"]');
-      if (honeypot && honeypot.value.trim() !== ""){
-        setMessage("You're on the list! We'll email you at launch.", 'success');
-        form.reset();
-        return;
-      }
-
-      const emailInput = form.querySelector('input[type="email"]');
-      const email = emailInput.value.trim();
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-      if (!emailRegex.test(email)){
-        setMessage("Please enter a valid email address.", 'error');
-        emailInput.focus();
-        return;
-      }
-
-      submitBtn.disabled = true;
-      if (btnLabel) btnLabel.textContent = "Submitting...";
-      const spinnerIcon = document.createElement('i');
-      spinnerIcon.className = "fa-solid fa-spinner fa-spin";
-      submitBtn.prepend(spinnerIcon);
-      setMessage("", null);
-
-      try {
-        const formData = new FormData(form);
-        const res = await fetch(form.getAttribute('action') || FORMSPREE_ENDPOINT, {
-          method: "POST",
-          headers: { "Accept": "application/json" },
-          body: formData
-        });
-
-        let data = null;
-        try { data = await res.json(); } catch(_) { /* non-JSON response is fine on success redirects */ }
-
-        if (res.ok){
-          setMessage("You're on the list! We'll email you at launch.", 'success');
-          form.reset();
-          fireConfetti();
-        } else {
-          const serverMsg = (data && Array.isArray(data.errors) && data.errors.length)
-            ? data.errors.map(er => er.message).join(", ")
-            : "Something went wrong. Please try again in a moment.";
-          setMessage(serverMsg, 'error');
-        }
-      } catch (err){
-        setMessage("We couldn't reach the server. Check your connection and try again.", 'error');
-      } finally {
-        submitBtn.disabled = false;
-        spinnerIcon.remove();
-        if (btnLabel) btnLabel.textContent = originalLabel;
-      }
-    });
   }
-  document.querySelectorAll('.waitlist-form').forEach(initForm);
+  animate();
+}
+window.addEventListener('resize', () => {
+  const canvas = document.getElementById('confetti-canvas');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
 
-  // Lightweight vanilla confetti (no external lib)
-  function fireConfetti(){
-    const colors = ['#F97316', '#FBBF24', '#ffffff', '#1A2540'];
-    const count = 120;
-    const container = document.createElement('div');
-    container.style.cssText = 'position:fixed; inset:0; pointer-events:none; z-index:9999; overflow:hidden;';
-    document.body.appendChild(container);
-
-    for (let i=0; i<count; i++){
-      const piece = document.createElement('div');
-      const size = 6 + Math.random()*6;
-      const startX = 50 + (Math.random()*40 - 20); // vw, centered-ish
-      piece.style.cssText = `
-        position:absolute; top:-20px; left:${startX}vw;
-        width:${size}px; height:${size*0.4}px;
-        background:${colors[Math.floor(Math.random()*colors.length)]};
-        opacity:${0.8 + Math.random()*0.2};
-        border-radius:2px;
-      `;
-      container.appendChild(piece);
-
-      const duration = 2200 + Math.random()*1800;
-      const xDrift = (Math.random()*200 - 100);
-      const rotation = Math.random()*720 - 360;
-
-      piece.animate([
-        { transform: `translate(0,0) rotate(0deg)`, opacity: 1 },
-        { transform: `translate(${xDrift}px, 100vh) rotate(${rotation}deg)`, opacity: 0.9 }
-      ], { duration, easing: 'cubic-bezier(.25,.46,.45,.94)', fill: 'forwards' });
-    }
-    setTimeout(() => container.remove(), 4200);
-  }
-
-  // ---------------------------------------------------------------------
-  // Navbar shadow on scroll
-  // ---------------------------------------------------------------------
-  const navbar = document.getElementById('navbar');
-  window.addEventListener('scroll', () => {
-    navbar.style.boxShadow = window.scrollY > 20 ? '0 10px 30px -15px rgba(0,0,0,0.5)' : 'none';
-  });
-
-  // ---------------------------------------------------------------------
-  // GSAP scroll-triggered reveals
-  // ---------------------------------------------------------------------
-  gsap.registerPlugin(ScrollTrigger);
-
-  gsap.utils.toArray('[data-reveal]').forEach((el) => {
-    gsap.fromTo(el,
-      { opacity: 0, y: 28 },
-      {
-        opacity: 1, y: 0, duration: 0.8, ease: 'power3.out',
-        scrollTrigger: { trigger: el, start: 'top 88%', once: true }
-      }
-    );
-  });
-
-  gsap.utils.toArray('.bento-card').forEach((el) => {
-    gsap.fromTo(el, { opacity: 0, scale: 0.96 }, {
-      opacity: 1, scale: 1, duration: 0.7, ease: 'power2.out',
-      scrollTrigger: { trigger: el, start: 'top 90%', once: true }
+/* ---------- GSAP scroll reveal animations ---------- */
+if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  document.querySelectorAll('.reveal-section').forEach(el => {
+    gsap.fromTo(el, {opacity:0, y:32}, {
+      opacity:1, y:0, duration:0.8, ease:'power3.out',
+      scrollTrigger:{ trigger: el, start:'top 88%', toggleActions:'play none none none' }
     });
   });
-
-  // Ticking counters (hero + stats)
-  function animateCount(el){
-    const target = parseFloat(el.getAttribute('data-count'));
-    const suffix = el.getAttribute('data-suffix') || '';
-    const isDecimal = String(target).includes('.');
-    const obj = { val: 0 };
-    gsap.to(obj, {
-      val: target,
-      duration: 1.6,
-      ease: 'power1.out',
-      onUpdate: () => {
-        el.textContent = (isDecimal ? obj.val.toFixed(1) : Math.round(obj.val)) + suffix;
-      }
-    });
-  }
-  gsap.utils.toArray('.tick, .stat-count').forEach(el => {
-    ScrollTrigger.create({
-      trigger: el,
-      start: 'top 90%',
-      once: true,
-      onEnter: () => animateCount(el)
+  document.querySelectorAll('.bento-card').forEach((card, i) => {
+    gsap.fromTo(card, {opacity:0, y:24}, {
+      opacity:1, y:0, duration:0.6, ease:'power2.out', delay: (i%3)*0.08,
+      scrollTrigger:{ trigger: card, start:'top 90%' }
     });
   });
+} else {
+  document.querySelectorAll('.reveal-section').forEach(el => { el.style.opacity = 1; el.style.transform = 'none'; });
+}
 </script>
-
 </body>
 </html>
