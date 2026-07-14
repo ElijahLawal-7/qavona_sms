@@ -27,14 +27,19 @@
      of the <style> block below (--qv-navy, --qv-orange, --qv-gold, etc).
      Change them there and they will cascade through the whole page.
 
-  4) FORM ENDPOINT
+  4) FORM ENDPOINT / MAKING THE FORMS ACTUALLY WORK
      Both waitlist forms POST to a Formspree endpoint. Search for
      "FORMSPREE_ENDPOINT" (defined once as a JS constant) to change it.
-
-  5) COPY
-     All section text is plain HTML in the markup below, grouped by
-     <section id="..."> — search for the section id (e.g. "features",
-     "faq") to jump straight to that content.
+     Two things Formspree requires that are NOT a code problem, just a
+     one-time setup step on formspree.io:
+       a) The very first submission to a new Formspree form ID is sent to
+          your Formspree dashboard as a "confirm this form" email — until
+          you click confirm there, later submissions won't be forwarded
+          to your inbox even though the page shows a success message.
+       b) On the free plan, Formspree caps monthly submissions. If you
+          expect real traffic, confirm the endpoint is on the right plan.
+     Everything else (validation, headers, honeypot spam field, error
+     display) is already wired up below — no further code changes needed.
   ============================================================================
 -->
 
@@ -86,7 +91,6 @@
 
   ::selection{ background:var(--qv-orange); color:white; }
 
-  /* Focus visibility */
   a:focus-visible, button:focus-visible, input:focus-visible{
     outline:2px solid var(--qv-orange);
     outline-offset:3px;
@@ -96,7 +100,7 @@
     *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important; }
   }
 
-  /* ---------------- Blueprint grid texture (signature motif) ---------------- */
+  /* ---------------- Blueprint grid texture ---------------- */
   .blueprint{
     background-image:
       linear-gradient(var(--qv-line) 1px, transparent 1px),
@@ -114,7 +118,6 @@
     background: radial-gradient(60% 60% at 50% 0%, rgba(249,115,22,0.18) 0%, rgba(249,115,22,0) 70%);
   }
 
-  /* ---------------- Glass panel (product's own design language) ---------------- */
   .glass{
     background: linear-gradient(155deg, rgba(255,255,255,0.09), rgba(255,255,255,0.02));
     border:1px solid rgba(255,255,255,0.14);
@@ -132,6 +135,7 @@
   }
   .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 16px 36px -8px rgba(249,115,22,0.7); filter:brightness(1.03); }
   .btn-primary:active{ transform:translateY(0px) scale(.98); }
+  .btn-primary:disabled{ opacity:.7; cursor:not-allowed; transform:none; }
 
   .btn-ghost{
     border:1px solid var(--qv-line);
@@ -147,13 +151,11 @@
     font-weight:600;
   }
 
-  /* Countdown digits */
   .digit-box{
     font-family:var(--font-mono);
     font-variant-numeric: tabular-nums;
   }
 
-  /* Bento card hover lift */
   .bento-card{
     transition: transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s ease, border-color .35s ease;
   }
@@ -163,7 +165,6 @@
     border-color: rgba(249,115,22,0.35);
   }
 
-  /* Marquee for "trusted by" style strip (uses real feature words, not fake logos) */
   .marquee-track{
     display:flex;
     width:max-content;
@@ -171,7 +172,6 @@
   }
   @keyframes marquee{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
 
-  /* FAQ accordion */
   .faq-panel{
     max-height:0;
     overflow:hidden;
@@ -181,16 +181,13 @@
   .faq-item.open .faq-chevron{ transform: rotate(45deg); }
   .faq-chevron{ transition: transform .3s ease; }
 
-  /* Mobile menu */
   .mobile-menu{ max-height:0; overflow:hidden; transition:max-height .4s ease; }
   .mobile-menu.open{ max-height:400px; }
 
-  /* Report-card mock ticking numbers */
   .tick{ transition: color .3s ease; }
 
   input::placeholder{ color:rgba(11,18,32,0.4); }
 
-  /* Custom scrollbar (subtle) */
   ::-webkit-scrollbar{ width:10px; }
   ::-webkit-scrollbar-track{ background:var(--qv-paper); }
   ::-webkit-scrollbar-thumb{ background:var(--qv-navy-700); border-radius:8px; }
@@ -199,6 +196,40 @@
     position:absolute; inset:0; pointer-events:none; opacity:.05; mix-blend-mode:overlay;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
+
+  /* ---- Signature detailing (kept subject-grounded even on the dark theme) ---- */
+
+  /* Module index badge — replaces a plain icon-in-box chip with an exam-slip index tab */
+  .mod-badge{
+    width:52px; height:52px;
+    border:1.5px dashed var(--qv-line-dark);
+    transform:rotate(-3deg);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:3px;
+    margin-bottom:1.5rem;
+    background:var(--qv-paper-dim);
+  }
+  .mod-badge .mod-index{ font-family:var(--font-mono); font-size:9px; letter-spacing:0.06em; color:var(--qv-slate); }
+  .mod-badge-dark{ border-color:rgba(255,255,255,0.22); background:rgba(255,255,255,0.05); }
+  .mod-badge-dark .mod-index{ color:rgba(255,255,255,0.45); }
+
+  /* Registration marks — printer crop-mark corners, nodding to exam-paper production */
+  .reg-marks{ position:relative; }
+  .reg-marks::before, .reg-marks::after{ content:''; position:absolute; width:13px; height:13px; opacity:.45; pointer-events:none; }
+  .reg-marks::before{ top:12px; left:12px; border-top:1.5px solid var(--qv-orange); border-left:1.5px solid var(--qv-orange); }
+  .reg-marks::after{ bottom:12px; right:12px; border-bottom:1.5px solid var(--qv-orange); border-right:1.5px solid var(--qv-orange); }
+
+  /* Signature initial — a rotated stamp square instead of a plain circle avatar */
+  .stamp-initial{
+    height:2.5rem; width:2.5rem; border-radius:6px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-display); font-weight:700; color:#fff;
+    background:linear-gradient(135deg,var(--qv-navy-800),var(--qv-navy-700));
+    box-shadow:0 4px 10px -4px rgba(11,18,32,0.5);
+  }
+
+  /* Honeypot field — invisible to humans, catches simple spam bots */
+  .hp-field{ position:absolute; left:-9999px; top:-9999px; height:0; width:0; overflow:hidden; }
 </style>
 </head>
 <body class="antialiased">
@@ -282,17 +313,22 @@
           entire school operations seamlessly. The ultimate educational OS is launching soon.
         </p>
 
-        <form data-reveal id="heroForm" class="waitlist-form flex flex-col sm:flex-row gap-3 max-w-lg" novalidate>
+        <form data-reveal id="heroForm" class="waitlist-form flex flex-col sm:flex-row gap-3 max-w-lg"
+              action="https://formspree.io/f/xkodnqzp" method="POST" novalidate>
           <div class="flex-1 relative">
             <i class="fa-solid fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-white/30"></i>
-            <input type="email" required name="email" placeholder="you@yourschool.edu"
+            <input type="email" required name="email" autocomplete="email" inputmode="email" placeholder="you@yourschool.edu"
               class="w-full pl-11 pr-4 py-3.5 rounded-xl bg-white/5 border border-white/15 text-white placeholder-white/35 focus:border-orange-400 focus:bg-white/10 outline-none transition-colors" />
           </div>
+          <!-- Honeypot: real users never see or fill this; bots often do -->
+          <input type="text" name="_gotcha" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <input type="hidden" name="_subject" value="New Qavona SMS Waitlist Signup" />
+          <input type="hidden" name="source" value="Hero form" />
           <button type="submit" class="btn-primary rounded-xl px-6 py-3.5 whitespace-nowrap flex items-center justify-center gap-2">
-            Join the Waitlist <i class="fa-solid fa-arrow-right text-sm"></i>
+            <span class="btn-label">Join the Waitlist</span> <i class="fa-solid fa-arrow-right text-sm"></i>
           </button>
         </form>
-        <p class="form-msg text-sm mt-3 min-h-[20px]"></p>
+        <p class="form-msg text-sm mt-3 min-h-[20px]" role="status" aria-live="polite"></p>
 
         <p data-reveal class="text-white/40 text-sm mt-1 flex items-center gap-2">
           <i class="fa-solid fa-shield-halved text-orange-400/70"></i>
@@ -306,7 +342,7 @@
           <div class="flex items-center justify-between mb-6">
             <div class="flex items-center gap-2.5">
               <div class="h-9 w-9 rounded-lg flex items-center justify-center" style="background:linear-gradient(135deg,var(--qv-orange),var(--qv-gold));">
-                <i class="fa-solid fa-graduation-cap text-navy-900 text-sm" style="color:#0B1220;"></i>
+                <i class="fa-solid fa-graduation-cap text-sm" style="color:#0B1220;"></i>
               </div>
               <div>
                 <p class="text-white text-sm font-semibold font-display">Result Engine — Live</p>
@@ -369,6 +405,21 @@
             <span class="flex items-center gap-1.5 text-orange-300"><i class="fa-solid fa-file-pdf"></i> Broadsheet.pdf</span>
           </div>
         </div>
+
+        <!-- wax-seal stamp — signature motif tying the dashboard back to an actual certificate/report -->
+        <svg class="absolute -top-7 -right-6 w-24 h-24 sm:w-28 sm:h-28 hidden sm:block" viewBox="0 0 200 200" style="transform:rotate(9deg); filter:drop-shadow(0 8px 18px rgba(0,0,0,0.45));">
+          <defs>
+            <path id="sealCircle" d="M 100,100 m -78,0 a 78,78 0 1,1 156,0 a 78,78 0 1,1 -156,0" />
+          </defs>
+          <circle cx="100" cy="100" r="94" fill="var(--qv-gold)" opacity="0.10"/>
+          <circle cx="100" cy="100" r="86" fill="none" stroke="var(--qv-gold)" stroke-width="2.5"/>
+          <circle cx="100" cy="100" r="74" fill="none" stroke="var(--qv-gold)" stroke-width="1.2" stroke-dasharray="2 4"/>
+          <text font-family="JetBrains Mono, monospace" font-size="12.5" font-weight="700" letter-spacing="3" fill="var(--qv-gold)">
+            <textPath href="#sealCircle" startOffset="2%">QAVONA · VERIFIED RESULT ·</textPath>
+          </text>
+          <text x="100" y="94" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif" font-size="14" font-weight="700" fill="#fff">EST.</text>
+          <text x="100" y="118" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif" font-size="20" font-weight="800" fill="#fff">2026</text>
+        </svg>
 
         <!-- floating badge -->
         <div class="absolute -bottom-6 -left-6 hidden sm:block glass rounded-2xl px-4 py-3" style="animation: float 5s ease-in-out infinite;">
@@ -501,10 +552,11 @@
 
     <div class="grid md:grid-cols-6 gap-5">
       <!-- CBT - large -->
-      <div data-reveal class="bento-card md:col-span-4 rounded-3xl p-8 flex flex-col justify-between min-h-[280px]" style="background:var(--qv-navy-900); border:1px solid transparent;">
+      <div data-reveal class="bento-card reg-marks md:col-span-4 rounded-3xl p-8 flex flex-col justify-between min-h-[280px]" style="background:var(--qv-navy-900); border:1px solid transparent;">
         <div>
-          <div class="h-11 w-11 rounded-xl flex items-center justify-center mb-6" style="background:rgba(249,115,22,0.15);">
-            <i class="fa-solid fa-laptop-code text-orange-400 text-lg"></i>
+          <div class="mod-badge mod-badge-dark">
+            <i class="fa-solid fa-laptop-code" style="color:var(--qv-orange-2);"></i>
+            <span class="mod-index">MOD·01</span>
           </div>
           <h3 class="font-display text-2xl font-bold text-white mb-3">Computer-Based Testing</h3>
           <p class="text-white/60 max-w-md">A full CBT engine for timed, auto-graded assessments — from class quizzes to standardized exams, sat securely on-platform.</p>
@@ -517,10 +569,11 @@
       </div>
 
       <!-- Instant results - medium -->
-      <div data-reveal class="bento-card md:col-span-2 rounded-3xl p-8 min-h-[280px] flex flex-col justify-between" style="background:white; border:1px solid var(--qv-line-dark);">
+      <div data-reveal class="bento-card reg-marks md:col-span-2 rounded-3xl p-8 min-h-[280px] flex flex-col justify-between" style="background:white; border:1px solid var(--qv-line-dark);">
         <div>
-          <div class="h-11 w-11 rounded-xl flex items-center justify-center mb-6" style="background:rgba(249,115,22,0.12);">
-            <i class="fa-solid fa-file-invoice text-orange-500 text-lg"></i>
+          <div class="mod-badge">
+            <i class="fa-solid fa-file-invoice" style="color:var(--qv-orange);"></i>
+            <span class="mod-index">MOD·02</span>
           </div>
           <h3 class="font-display text-xl font-bold mb-3">Instant Results &amp; Report Cards</h3>
           <p class="text-slate-600 text-sm">Branded, print-ready report cards generated the moment scores are entered.</p>
@@ -528,37 +581,41 @@
       </div>
 
       <!-- Portals -->
-      <div data-reveal class="bento-card md:col-span-2 rounded-3xl p-8 min-h-[260px]" style="background:white; border:1px solid var(--qv-line-dark);">
-        <div class="h-11 w-11 rounded-xl flex items-center justify-center mb-6" style="background:rgba(249,115,22,0.12);">
-          <i class="fa-solid fa-users-gear text-orange-500 text-lg"></i>
+      <div data-reveal class="bento-card reg-marks md:col-span-2 rounded-3xl p-8 min-h-[260px]" style="background:white; border:1px solid var(--qv-line-dark);">
+        <div class="mod-badge">
+          <i class="fa-solid fa-users-gear" style="color:var(--qv-orange);"></i>
+          <span class="mod-index">MOD·03</span>
         </div>
         <h3 class="font-display text-xl font-bold mb-3">Secure Portals</h3>
         <p class="text-slate-600 text-sm">Dedicated, role-scoped access for Admins, Principals, Teachers, Students and Parents.</p>
       </div>
 
       <!-- Attendance / timetable / fees -->
-      <div data-reveal class="bento-card md:col-span-2 rounded-3xl p-8 min-h-[260px]" style="background:white; border:1px solid var(--qv-line-dark);">
-        <div class="h-11 w-11 rounded-xl flex items-center justify-center mb-6" style="background:rgba(249,115,22,0.12);">
-          <i class="fa-solid fa-calendar-check text-orange-500 text-lg"></i>
+      <div data-reveal class="bento-card reg-marks md:col-span-2 rounded-3xl p-8 min-h-[260px]" style="background:white; border:1px solid var(--qv-line-dark);">
+        <div class="mod-badge">
+          <i class="fa-solid fa-calendar-check" style="color:var(--qv-orange);"></i>
+          <span class="mod-index">MOD·04</span>
         </div>
         <h3 class="font-display text-xl font-bold mb-3">Attendance, Timetable &amp; Fees</h3>
         <p class="text-slate-600 text-sm">Daily attendance, class schedules, and fee tracking — all feeding straight into report cards.</p>
       </div>
 
       <!-- Communication -->
-      <div data-reveal class="bento-card md:col-span-2 rounded-3xl p-8 min-h-[260px]" style="background:white; border:1px solid var(--qv-line-dark);">
-        <div class="h-11 w-11 rounded-xl flex items-center justify-center mb-6" style="background:rgba(249,115,22,0.12);">
-          <i class="fa-solid fa-comments text-orange-500 text-lg"></i>
+      <div data-reveal class="bento-card reg-marks md:col-span-2 rounded-3xl p-8 min-h-[260px]" style="background:white; border:1px solid var(--qv-line-dark);">
+        <div class="mod-badge">
+          <i class="fa-solid fa-comments" style="color:var(--qv-orange);"></i>
+          <span class="mod-index">MOD·05</span>
         </div>
         <h3 class="font-display text-xl font-bold mb-3">Communication &amp; Notifications</h3>
         <p class="text-slate-600 text-sm">Bulk email and SMS to guardians — announcements, results, and reminders, sent in one click.</p>
       </div>
 
       <!-- Analytics - wide -->
-      <div data-reveal class="bento-card md:col-span-6 rounded-3xl p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6" style="background:var(--qv-navy-900);">
+      <div data-reveal class="bento-card reg-marks md:col-span-6 rounded-3xl p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6" style="background:var(--qv-navy-900);">
         <div class="flex items-start gap-5">
-          <div class="h-11 w-11 rounded-xl flex items-center justify-center shrink-0" style="background:rgba(249,115,22,0.15);">
-            <i class="fa-solid fa-chart-line text-orange-400 text-lg"></i>
+          <div class="mod-badge mod-badge-dark shrink-0 mb-0">
+            <i class="fa-solid fa-chart-line" style="color:var(--qv-orange-2);"></i>
+            <span class="mod-index">MOD·06</span>
           </div>
           <div>
             <h3 class="font-display text-xl font-bold text-white mb-2">Advanced Analytics &amp; Reports</h3>
@@ -582,7 +639,7 @@
 
     <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
       <div data-reveal class="rounded-2xl p-7 border" style="border-color:var(--qv-line-dark); background:white;">
-        <p class="font-mono text-4xl font-bold text-orange-500 mb-2 stat-count" data-count="95">0%</p>
+        <p class="font-mono text-4xl font-bold text-orange-500 mb-2 stat-count" data-count="95" data-suffix="%">0%</p>
         <p class="text-slate-600 text-sm">Less time spent computing and compiling results manually</p>
       </div>
       <div data-reveal class="rounded-2xl p-7 border" style="border-color:var(--qv-line-dark); background:white;">
@@ -651,7 +708,7 @@
         </div>
         <p class="text-slate-700 mb-6">"What we saw in the preview finally looked like software built for how our school actually runs — not a generic template."</p>
         <div class="flex items-center gap-3">
-          <div class="h-10 w-10 rounded-full flex items-center justify-center font-display font-bold text-white" style="background:linear-gradient(135deg,var(--qv-navy-800),var(--qv-navy-700));">A</div>
+          <div class="stamp-initial">A</div>
           <div>
             <p class="font-semibold text-sm">School Administrator</p>
             <p class="text-slate-500 text-xs">Private Secondary School</p>
@@ -665,7 +722,7 @@
         </div>
         <p class="text-slate-700 mb-6">"Computing results and remarks used to take our staff days. Seeing it happen automatically was the moment we signed up for early access."</p>
         <div class="flex items-center gap-3">
-          <div class="h-10 w-10 rounded-full flex items-center justify-center font-display font-bold text-white" style="background:linear-gradient(135deg,var(--qv-navy-800),var(--qv-navy-700));">V</div>
+          <div class="stamp-initial" style="transform:rotate(3deg);">V</div>
           <div>
             <p class="font-semibold text-sm">Vice Principal, Academics</p>
             <p class="text-slate-500 text-xs">International School</p>
@@ -679,7 +736,7 @@
         </div>
         <p class="text-slate-700 mb-6">"The parent communication piece is what stood out — instant, professional updates instead of chasing paper report cards."</p>
         <div class="flex items-center gap-3">
-          <div class="h-10 w-10 rounded-full flex items-center justify-center font-display font-bold text-white" style="background:linear-gradient(135deg,var(--qv-navy-800),var(--qv-navy-700));">IT</div>
+          <div class="stamp-initial" style="transform:rotate(-4deg); font-size:0.75rem;">IT</div>
           <div>
             <p class="font-semibold text-sm">IT Coordinator</p>
             <p class="text-slate-500 text-xs">Group of Schools</p>
@@ -703,17 +760,21 @@
       Early waitlist schools get priority onboarding and exclusive launch pricing.
     </p>
 
-    <form data-reveal id="finalForm" class="waitlist-form flex flex-col sm:flex-row gap-3 max-w-lg mx-auto" novalidate>
+    <form data-reveal id="finalForm" class="waitlist-form flex flex-col sm:flex-row gap-3 max-w-lg mx-auto"
+          action="https://formspree.io/f/xkodnqzp" method="POST" novalidate>
       <div class="flex-1 relative">
         <i class="fa-solid fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-white/30"></i>
-        <input type="email" required name="email" placeholder="you@yourschool.edu"
+        <input type="email" required name="email" autocomplete="email" inputmode="email" placeholder="you@yourschool.edu"
           class="w-full pl-11 pr-4 py-3.5 rounded-xl bg-white/5 border border-white/15 text-white placeholder-white/35 focus:border-orange-400 focus:bg-white/10 outline-none transition-colors" />
       </div>
+      <input type="text" name="_gotcha" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true" />
+      <input type="hidden" name="_subject" value="New Qavona SMS Waitlist Signup" />
+      <input type="hidden" name="source" value="Final CTA form" />
       <button type="submit" class="btn-primary rounded-xl px-6 py-3.5 whitespace-nowrap flex items-center justify-center gap-2">
-        Join the Waitlist <i class="fa-solid fa-arrow-right text-sm"></i>
+        <span class="btn-label">Join the Waitlist</span> <i class="fa-solid fa-arrow-right text-sm"></i>
       </button>
     </form>
-    <p class="form-msg text-sm mt-3 min-h-[20px]"></p>
+    <p class="form-msg text-sm mt-3 min-h-[20px]" role="status" aria-live="polite"></p>
   </div>
 </section>
 
@@ -866,50 +927,77 @@
   });
 
   // ---------------------------------------------------------------------
-  // Waitlist forms -> Formspree + confetti success state
+  // Waitlist forms -> Formspree (AJAX with a real <form action> fallback)
+  // + confetti success state + honeypot spam check + real error messages
   // ---------------------------------------------------------------------
   function initForm(form){
     const msgEl = form.parentElement.querySelector('.form-msg');
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const btnLabel = submitBtn.querySelector('.btn-label');
+    const originalLabel = btnLabel ? btnLabel.textContent : submitBtn.textContent;
+
+    function setMessage(text, tone){
+      // tone: 'error' | 'success'
+      msgEl.textContent = text;
+      msgEl.className = "form-msg text-sm mt-3 min-h-[20px] " +
+        (tone === 'error' ? 'text-red-400' : tone === 'success' ? 'text-emerald-400 font-medium' : '');
+    }
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
+
+      // Honeypot: if this hidden field got filled in, silently drop the submission
+      const honeypot = form.querySelector('input[name="_gotcha"]');
+      if (honeypot && honeypot.value.trim() !== ""){
+        setMessage("You're on the list! We'll email you at launch.", 'success');
+        form.reset();
+        return;
+      }
+
       const emailInput = form.querySelector('input[type="email"]');
       const email = emailInput.value.trim();
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
       if (!emailRegex.test(email)){
-        msgEl.textContent = "Please enter a valid email address.";
-        msgEl.className = "form-msg text-sm mt-3 min-h-[20px] text-red-400";
+        setMessage("Please enter a valid email address.", 'error');
         emailInput.focus();
         return;
       }
 
-      const submitBtn = form.querySelector('button[type="submit"]');
-      const originalBtnHTML = submitBtn.innerHTML;
       submitBtn.disabled = true;
-      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
-      msgEl.textContent = "";
+      if (btnLabel) btnLabel.textContent = "Submitting...";
+      const spinnerIcon = document.createElement('i');
+      spinnerIcon.className = "fa-solid fa-spinner fa-spin";
+      submitBtn.prepend(spinnerIcon);
+      setMessage("", null);
 
       try {
-        const res = await fetch(FORMSPREE_ENDPOINT, {
+        const formData = new FormData(form);
+        const res = await fetch(form.getAttribute('action') || FORMSPREE_ENDPOINT, {
           method: "POST",
-          headers: { "Accept": "application/json", "Content-Type": "application/json" },
-          body: JSON.stringify({ email, source: "Qavona SMS Waitlist" })
+          headers: { "Accept": "application/json" },
+          body: formData
         });
 
+        let data = null;
+        try { data = await res.json(); } catch(_) { /* non-JSON response is fine on success redirects */ }
+
         if (res.ok){
-          msgEl.textContent = "You're on the list! We'll email you at launch.";
-          msgEl.className = "form-msg text-sm mt-3 min-h-[20px] text-emerald-400 font-medium";
+          setMessage("You're on the list! We'll email you at launch.", 'success');
           form.reset();
           fireConfetti();
         } else {
-          throw new Error("Submission failed");
+          const serverMsg = (data && Array.isArray(data.errors) && data.errors.length)
+            ? data.errors.map(er => er.message).join(", ")
+            : "Something went wrong. Please try again in a moment.";
+          setMessage(serverMsg, 'error');
         }
       } catch (err){
-        msgEl.textContent = "Something went wrong. Please try again in a moment.";
-        msgEl.className = "form-msg text-sm mt-3 min-h-[20px] text-red-400";
+        setMessage("We couldn't reach the server. Check your connection and try again.", 'error');
       } finally {
         submitBtn.disabled = false;
-        submitBtn.innerHTML = originalBtnHTML;
+        spinnerIcon.remove();
+        if (btnLabel) btnLabel.textContent = originalLabel;
       }
     });
   }
@@ -953,11 +1041,7 @@
   // ---------------------------------------------------------------------
   const navbar = document.getElementById('navbar');
   window.addEventListener('scroll', () => {
-    if (window.scrollY > 20){
-      navbar.style.boxShadow = '0 10px 30px -15px rgba(0,0,0,0.5)';
-    } else {
-      navbar.style.boxShadow = 'none';
-    }
+    navbar.style.boxShadow = window.scrollY > 20 ? '0 10px 30px -15px rgba(0,0,0,0.5)' : 'none';
   });
 
   // ---------------------------------------------------------------------
@@ -965,7 +1049,7 @@
   // ---------------------------------------------------------------------
   gsap.registerPlugin(ScrollTrigger);
 
-  gsap.utils.toArray('[data-reveal]').forEach((el, i) => {
+  gsap.utils.toArray('[data-reveal]').forEach((el) => {
     gsap.fromTo(el,
       { opacity: 0, y: 28 },
       {
